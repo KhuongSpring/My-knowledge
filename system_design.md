@@ -507,8 +507,6 @@ Không giải pháp nào hoàn hảo - hoặc mất doanh thu tạm thời nhưn
 
 ### Cách trình bày về nhất quán và khả dụng khi phỏng vấn
 
-
-
 ## <a id="lựa-chọn-cơ-sở-dữ-liệu-sharding-và-tối-ưu-hóa-lưu-trữ-1"></a>Lựa chọn Cơ sở dữ liệu, Sharding và Tối ưu hóa lưu trữ
 
 ### SQL vs NoSQL: Lựa chọn cơ sở dữ liệu phù hợp
