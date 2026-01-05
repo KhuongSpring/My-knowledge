@@ -971,11 +971,69 @@ Tuy nhiên, TCP đòi hỏi thiết lập và duy trì kết nối, có bắt ta
 
 Mẹo phỏng vấn: Nếu được hỏi về tầng giao vận hoặc truyền thông tin giữa các thành phần trong hệ thống, đừng quên nhắc tới TCP như là xương sống của internet. Bạn có thể nói: “Em chọn TCP vì cần sự tin cậy: mọi gói tin đều đến nơi hoặc được truyền lại. Với những dữ liệu quan trọng như kết quả giao dịch ngân hàng hay file backup, TCP là phù hợp.” Chứng tỏ bạn hiểu ưu/nhược: TCP an toàn nhưng chậm hơn UDP do phải thiết lập kết nối và xác nhận gói tin.
 
-### UDP: Giao thức "gửi là quên"
+### [UDP](https://www.geeksforgeeks.org/computer-networks/user-datagram-protocol-udp/): Giao thức "gửi là quên"
 
-### RPC: Gọi thủ tục từ xa như gọi hàm nội bộ
+UDP (User Datagram Protocol) là giao thức truyền tải hướng không kết nối (connectionless), trái ngược với TCP. Với UDP, bên gửi không cần bắt tay thiết lập kết nối trước; dữ liệu cứ có là gửi đi ngay, không chờ đợi. Giao thức UDP cũng không đảm bảo độ tin cậy: nghĩa là không có cơ chế xác nhận gói tin đã đến hay chưa, không tự động gửi lại nếu gói bị thất lạc, và không đảm bảo thứ tự nhận giống thứ tự gửi. Nói ngắn gọn, UDP hoạt động kiểu “fire-and-forget” (gửi đi và không chờ hồi đáp). 
 
-### REST: Phong cách thiết kế API rõ ràng, thống nhất
+Ví dụ minh họa: Hãy hình dung bạn đang gọi video call hoặc chơi game online. Những ứng dụng real-time này thường sử dụng UDP để truyền dữ liệu âm thanh, hình ảnh hoặc trạng thái trò chơi. Lý do: UDP rất nhanh, độ trễ thấp - nó không mất thời gian bắt tay hay chờ ACK như TCP. Nếu một vài gói tin chứa dữ liệu âm thanh bị mất, cuộc gọi có thể hơi nhiễu một chút nhưng phần lớn vẫn hiểu được, và quan trọng hơn là âm thanh hình ảnh vẫn đến liên tục, đúng thời gian thực. Tương tự, trong game online, nếu một vài gói tin vị trí nhân vật bị rớt, trò chơi vẫn tiếp tục (có thể đối thủ sẽ “dịch chuyển nhẹ” một cách hơi giật), bù lại game phản hồi nhanh. Những trường hợp này chấp nhận mất mát dữ liệu nhỏ để đổi lấy tốc độ. Ngoài ra, dịch vụ DNS (hệ thống phân giải tên miền) cũng dùng UDP cho các truy vấn nhỏ: mỗi truy vấn DNS là một gói tin độc lập hỏi IP của một domain, dùng UDP giúp xử lý hàng triệu truy vấn nhanh chóng và nếu một gói DNS thất lạc, client có thể gửi lại truy vấn mà không tốn nhiều chi phí. 
+
+Đặc điểm chính: Vì không đảm bảo và không có phiên kết nối, UDP có một số ưu điểm và nhược điểm rõ rệt:
+
+- Ưu điểm: Tốc độ rất cao và độ trễ thấp. Không tốn thời gian bắt tay, header của gói UDP cũng nhỏ gọn, giúp truyền tải nhanh. Phù hợp cho truyền dữ liệu liên tục, real time, multicast/broadcast đến nhiều thiết bị. 
+
+- Nhược điểm: Không tin cậy. Gói tin có thể bị mất hoặc đến lộn xộn, ứng dụng phải tự chịu trách nhiệm nếu cần độ chính xác. Không thích hợp cho dữ liệu quan trọng cần độ chính xác hoàn hảo (vì UDP “không quan tâm” gói tin có tới đích không).
+
+Khi nào nên dùng UDP: Hãy chọn UDP cho các ứng dụng đòi hỏi tốc độ và thời gian thực, nơi mà việc mất một ít dữ liệu là chấp nhận được. Các ví dụ điển hình: VoIP (thoại/video qua IP), streaming video/truyền hình trực tuyến, trò chơi trực tuyến, hoặc truyền các gói tin cảm biến IoT liên tục. UDP cũng hữu ích cho các truy vấn nhỏ, số lượng lớn như DNS hoặc ping mạng, nơi thiết lập kết nối TCP cho từng truy vấn sẽ tốn kém không cần thiết. 
+
+Trong thiết kế hệ thống, nếu bạn xây dựng một dịch vụ streaming hay chat voice, đừng quên cân nhắc UDP ở tầng transport cho phần truyền tải media. Thực tế nhiều giao thức streaming (như RTP trong VoIP, hoặc QUIC mới của HTTP/3) đều tận dụng UDP để đạt hiệu suất cao, sau đó tự bổ sung một số cơ chế kiểm soát ở tầng ứng dụng. 
+
+Mẹo phỏng vấn: Nếu được hỏi về cách tối ưu tốc độ cho truyền dữ liệu thời gian thực, bạn có thể trả lời: “Em dùng UDP vì nhanh và ít độ trễ. Ví dụ stream video, mất một vài frame còn hơn bị trễ hình.” Cho thấy bạn hiểu trade-off: UDP nhanh do không overhead bắt tay, nhưng đổi lại không đảm bảo: và bạn chấp nhận điều đó cho use case phù hợp. Bạn cũng có thể đề cập rằng đôi khi lập trình viên phải tự xây dựng cơ chế kiểm lỗi nếu dùng UDP, nhưng với streaming real-time thì thường “mất thì thôi” để giữ mạch dữ liệu liên tục.
+
+### [RPC](https://www.geeksforgeeks.org/operating-systems/remote-procedure-call-rpc-in-operating-system/): Gọi thủ tục từ xa như gọi hàm nội bộ
+
+RPC (Remote Procedure Call) là một cơ chế giao tiếp cho phép gọi hàm trên một máy khác giống như đang gọi hàm cục bộ trong chương trình. Nói cách khác, RPC là phương pháp để một chương trình yêu cầu dịch vụ từ chương trình khác trên máy chủ khác và nhận kết quả trả về qua mạng. Lập trình viên có thể gọi một hàm hoặc phương thức mà thực chất hàm đó chạy ở server từ xa, mọi phức tạp về gửi yêu cầu qua mạng, chờ phản hồi, chuyển đổi dữ liệu… đều được RPC abstraction xử lý, giúp cho việc gọi hàm từ xa trở nên trực quan như gọi hàm local. 
+
+Ví dụ minh họa: Giả sử bạn có một ứng dụng với kiến trúc microservices, trong đó có Service A và Service B. Thay vì Service A gửi một request HTTP đến B rồi parse JSON, bạn có thể sử dụng RPC (ví dụ: [gRPC](https://grpc.io/)) để Service A gọi thẳng hàm getUserInfo(userId) trên Service B và nhận về kết quả như một đối tượng, y như đang gọi hàm trong cùng một project. Lập trình viên chỉ cần gọi hàm, RPC framework lo hết việc truyền qua mạng. Các framework RPC phổ biến hiện nay gồm [gRPC](https://www.geeksforgeeks.org/distributed-systems/grpc-communication-in-distributed-systems/) (dựa trên HTTP/2 và protocol buffers), Thrift, Apache Dubbo, v.v. chúng thường tạo ra code “stub” phía client và “service skeleton” phía server để thực hiện lời gọi từ xa một cách trong suốt. 
+
+Ưu nhược điểm của RPC:
+
+- Ưu điểm: RPC thường có hiệu suất cao (sử dụng giao thức nhị phân, ít overhead hơn so với HTTP text). Giao tiếp RPC có độ trễ thấp, rất hữu dụng trong nội bộ hệ thống microservices cần trao đổi nhiều. Ngoài ra, RPC cung cấp trải nghiệm lập trình tiện lợi: gọi hàm từ xa như gọi hàm thường, giúp lập trình viên tập trung vào logic thay vì xử lý giao tiếp mạng. 
+
+- Nhược điểm: RPC có thể dẫn đến khớp nối chặt (tight coupling) giữa client và server: cả hai bên phải hiểu cùng một interface hàm (thường qua file định nghĩa .proto hoặc IDL). Việc thay đổi giao thức RPC (thêm tham số hàm, đổi kiểu dữ liệu…) có thể đòi hỏi cập nhật cả client lẫn server. Ngoài ra, RPC thường không được hỗ trợ trực tiếp trên trình duyệt web (ví dụ gRPC thuần dùng HTTP/2 không tương thích với call từ Javascript thuần, phải dùng gRPC-Web proxy). Vì vậy RPC hay được dùng cho giao tiếp backend-backend hơn là cho client frontend gọi thẳng.
+
+Khi nào nên dùng RPC: RPC phù hợp cho hệ thống phân tán nội bộ, kiến trúc microservice: nơi các service thường gọi lẫn nhau. Nếu bạn cần hiệu năng cao và các dịch vụ có thể được update đồng bộ (cùng kiểm soát), RPC là lựa chọn tốt. Ví dụ, trong hệ thống doanh nghiệp nội bộ, các dịch vụ viết bằng Go hoặc Java trong cùng công ty có thể dùng gRPC để giao tiếp: vừa nhanh, gọn (nhờ Protocol Buffers), vừa có kiểu dữ liệu chặt chẽ. RPC cũng lý tưởng cho các tình huống yêu cầu tương tác kiểu request-response nhanh, chẳng hạn hệ thống quảng cáo real-time đấu giá: độ trễ mỗi request cần tính bằng milliseconds. 
+
+Tuy nhiên, nếu hệ thống của bạn mở API ra ngoài cho nhiều client khác nhau hoặc bạn muốn sự linh hoạt, bạn có thể ưu tiên RESTful HTTP (vì client không cần thư viện đặc biệt và dễ debug hơn). 
+
+Mẹo phỏng vấn: Khi thảo luận về kiến trúc microservices, bạn có thể đề cập: “Với giao tiếp giữa các service nội bộ, em đề xuất dùng RPC (ví dụ gRPC) thay cho REST, do hiệu suất cao và giao tiếp trực tiếp kiểu hàm.” Điều này cho thấy bạn nắm bắt xu hướng sử dụng RPC trong các hệ thống lớn (Google, Facebook đều dùng RPC nội bộ). Đừng quên nói rõ lý do: RPC nhanh hơn REST do binary format, và code sinh ra dùng được ngay như hàm local. Nhưng cũng thể hiện rằng bạn nhận thức hạn chế: RPC phức tạp hơn để triển khai, giám sát, và không phù hợp public API. Nếu interviewer hỏi sâu, bạn có thể nhắc đến việc gRPC cần HTTP/2 và không gọi trực tiếp từ browser (phải có gateway), cho thấy bạn hiểu bối cảnh sử dụng RPC. 
+
+### [REST](https://www.geeksforgeeks.org/node-js/rest-api-introduction/): Phong cách thiết kế API rõ ràng, thống nhất
+
+REST (Representational State Transfer) không phải một giao thức cụ thể, mà là một phong cách kiến trúc thiết kế API dựa trên giao thức HTTP. Một API được gọi là “RESTful” nếu nó tuân thủ các nguyên tắc REST: trong đó tài nguyên (resources) là trung tâm. Mỗi tài nguyên được định danh bằng một URL (điểm cuối), và việc thao tác dữ liệu sẽ thông qua các phương thức HTTP chuẩn như GET, POST, PUT, DELETE trên các URL đó. REST tận dụng tối đa đặc tính stateless của HTTP - mỗi request tự chứa đủ thông tin, server không cần nhớ trạng thái trước đó: giúp hệ thống dễ mở rộng và phân tán tốt (mỗi thành phần có thể độc lập xử lý).
+
+Ví dụ minh họa: Giả sử bạn thiết kế một hệ thống quản lý công việc với RESTful API. Bạn có thể định nghĩa tài nguyên “công việc” (task) và “người dùng” (user) như sau:
+
+- GET /tasks : lấy danh sách tất cả công việc. 
+
+- POST /tasks : tạo mới một công việc. (Dữ liệu công việc mới sẽ gửi kèm trong body dạng JSON). 
+
+- GET /tasks/123 : lấy chi tiết công việc với ID 123. 
+
+- PUT /tasks/123 : cập nhật thông tin công việc 123 (thay thế toàn bộ) hoặc PATCH /tasks/123 để cập nhật một phần.
+
+- DELETE /tasks/123: xóa công việc 123. 
+
+Tương tự, tài nguyên người dùng (/users) cũng có các endpoint GET/POST... REST hướng đến việc sử dụng nhất quán các verb HTTP cho các loại thao tác giống nhau (GET luôn để lấy dữ liệu, POST để tạo mới, v.v.), giúp API dễ hiểu và dự đoán được. Phản hồi từ REST API thường là JSON (trước đây đôi khi XML), đại diện cho trạng thái tài nguyên. Ví dụ, GET /tasks/123 trả về JSON của task 123, còn DELETE /tasks/123 có thể trả về mã trạng thái 204 No Content nếu xóa thành công.
+
+Ưu nhược điểm của RESTful API: 
+
+- Ưu điểm: REST đơn giản và rõ ràng. API thiết kế theo REST dễ dàng cho người khác sử dụng vì tuân theo chuẩn chung (nhìn endpoint và method là hiểu được phần nào chức năng). Tính không trạng thái và phân lớp của REST giúp nó mở rộng tốt: ta có thể nhân bản nhiều server phục vụ API mà không lo đồng bộ session. Ngoài ra, REST tận dụng hạ tầng HTTP sẵn có (caching, authentication bằng token header, mã trạng thái response...) nên rất tiện lợi và tương thích rộng (hầu như mọi ngôn ngữ, nền tảng đều gọi được HTTP). 
+
+- Nhược điểm: Do dùng HTTP và thường trao đổi dữ liệu dạng text (JSON/XML), RESTful API có thể chậm hơn và ngốn băng thông hơn so với các giải pháp nhị phân tối ưu (như RPC/gRPC). REST cũng không ép chặt chẽ cấu trúc response, nên nếu thiết kế không cẩn thận có thể dẫn đến API thiếu nhất quán giữa các endpoint. Bên cạnh đó, tính stateless mặc dù tốt cho mở rộng nhưng đôi khi buộc client gửi lặp lại nhiều thông tin (ví dụ mỗi request đều phải kèm token xác thực, không tận dụng được thông tin đã biết từ request trước).
+
+Khi nào nên dùng REST: Hầu hết các dịch vụ web công khai và API cho đối tác/khách hàng ngày nay đều sử dụng RESTful API. Nếu bạn xây dựng một Web Service hoặc Microservice mà client tiêu thụ rất đa dạng (trình duyệt web, ứng dụng mobile, hệ thống bên thứ ba), REST là lựa chọn an toàn. Nó mang lại khả năng tương tác (interoperability) cao: bất kỳ client nào hiểu HTTP đều dùng được. REST cũng thích hợp cho các hệ thống lớn cần loose coupling: mỗi service có thể phát triển độc lập, miễn là tuân thủ hợp đồng API (các URL endpoints và định dạng request/response). Ngay cả khi nội bộ hệ thống bạn có thể dùng gRPC, bạn vẫn có thể xây dựng một lớp API Gateway RESTful bên ngoài để tương thích với mọi client công cộng. 
+
+Mẹo phỏng vấn: Nếu được hỏi “Vì sao chọn REST cho API này?”, bạn có thể trả lời: “Vì em muốn một API dễ sử dụng, tiêu chuẩn. RESTful API dùng HTTP nên bất cứ client nào cũng kết nối được, và dễ dàng thử nghiệm (có thể gọi bằng cURL, Postman). Kiến trúc REST lại stateless, scale out rất dễ. Hơn nữa, REST đã quá phổ biến trong giới lập trình, nên team nào cũng có thể nhanh chóng hiểu và dùng API của mình.” Điều này cho thấy bạn không chỉ biết REST là gì, mà còn hiểu giá trị của nó trong thiết kế hệ thống thực tiễn.
 
 ## <a id="đảm-bảo-khả-năng-chịu-lỗi-và-phục-hồi-hệ-thống-1"></a>Đảm bảo khả năng chịu lỗi và phục hồi hệ thống
 
