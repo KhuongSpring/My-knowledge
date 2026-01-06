@@ -924,15 +924,52 @@ Ví dụ: Giả sử hai client cùng cập nhật thông tin người dùng. V�
 
 ### Khi nào dùng & lựa chọn
 
-Idempotency: Nên áp dụng cho mọi API trong hệ phân tán có khả năng retry hoặc có thể gửi yêu cầu trùng lặp. Các API tạo giao dịch (chuyển tiền, đặt đơn hàng) đặc biệt cần idempotency để tránh double-charge hay tạo đơn kép. Nói chung, nếu luồng xử lý có thể thất bại và client retry, ta cần thiết kế idempotency key cho yêu cầu. 
+- Idempotency: Nên áp dụng cho mọi API trong hệ phân tán có khả năng retry hoặc có thể gửi yêu cầu trùng lặp. Các API tạo giao dịch (chuyển tiền, đặt đơn hàng) đặc biệt cần idempotency để tránh double-charge hay tạo đơn kép. Nói chung, nếu luồng xử lý có thể thất bại và client retry, ta cần thiết kế idempotency key cho yêu cầu. 
 
-● Locking: Hầu hết ứng dụng web thông thường chấp nhận được dirty read nên có thể dùng optimistic locking để giảm thiểu deadlock và tăng tốc độ. Ngược lại, với các giao dịch tài chính hoặc kịch bản đòi hỏi chính xác tuyệt đối, pessimistic locking được ưu tiên vì đảm bảo tính chính xác mặc dù tốn hiệu năng hơn. Trong các buổi phỏng vấn System Design, bạn nên nhắc đến việc chọn optimistic locking nếu mức độ đồng thời cao và khả năng xung đột thấp, và chọn pessimistic locking khi nhất quán dữ liệu là ưu tiên hàng đầu.
+- Locking: Hầu hết ứng dụng web thông thường chấp nhận được dirty read nên có thể dùng optimistic locking để giảm thiểu deadlock và tăng tốc độ. Ngược lại, với các giao dịch tài chính hoặc kịch bản đòi hỏi chính xác tuyệt đối, pessimistic locking được ưu tiên vì đảm bảo tính chính xác mặc dù tốn hiệu năng hơn. Trong các buổi phỏng vấn System Design, bạn nên nhắc đến việc chọn optimistic locking nếu mức độ đồng thời cao và khả năng xung đột thấp, và chọn pessimistic locking khi nhất quán dữ liệu là ưu tiên hàng đầu.
+
+> Có thể xem thêm về sự khác nhau giữa 2 cách tiếp cận locking tại [đây](https://www.geeksforgeeks.org/dbms/difference-between-pessimistic-approach-and-optimistic-approach-in-dbms/)
 
 ## <a id="các-phương-thức-giao-tiếp-và-thiết-kế-api-1"></a>Các phương thức giao tiếp và thiết kế API
 
-### HTTP: Giao thức request/response phổ biến nhất
+Khi thiết kế hệ thống (đặc biệt trong bối cảnh phỏng vấn), việc lựa chọn phương thức giao tiếp và thiết kế API phù hợp là rất quan trọng. Mỗi dịch vụ trong hệ thống có thể cần trao đổi dữ liệu với dịch vụ khác hoặc với client, và có nhiều giao thức cũng như style API để thực hiện việc này. Chương 6 sẽ giới thiệu các phương thức giao tiếp phổ biến: gồm HTTP, TCP, UDP, RPC, và cách thiết kế API kiểu RESTful. Chúng ta sẽ tìm hiểu đặc điểm chính của từng phương thức, gợi ý khi nào nên dùng giao thức nào, và cách giải thích lựa chọn đó. 
 
-### TCP: Giao thức kết nối tin cậy
+### [HTTP](https://www.geeksforgeeks.org/blogs/http-full-form/): Giao thức request/response phổ biến nhất
+
+HTTP (HyperText Transfer Protocol) là giao thức tầng ứng dụng được sử dụng rộng rãi nhất cho web. HTTP hoạt động theo mô hình client-server dạng yêu cầu/đáp ứng (request-response) - phía client (ví dụ: trình duyệt web của bạn) mở kết nối đến server, gửi một yêu cầu, rồi chờ server xử lý và trả về phản hồi tương ứng. HTTP có đặc tính stateless (phi trạng thái), nghĩa là bản thân server không ghi nhớ trạng thái phiên làm việc giữa các lần request - mỗi yêu cầu được xử lý độc lập với nhau. (Điều này lý giải vì sao khi xây dựng ứng dụng web chúng ta thường cần cơ chế như cookie/session hoặc token để duy trì trạng thái đăng nhập - đó là giải pháp bổ sung chứ HTTP không tự lưu trạng thái người dùng giữa các request). 
+
+Ví dụ minh họa: Khi bạn mở trình duyệt và truy cập https://www.example.com, trình duyệt sẽ gửi một HTTP request (cụ thể là một request GET) đến server của example.com. Server xử lý và trả về HTTP response (thí dụ: nội dung HTML của trang web). Mỗi lần bạn nhấp một đường link hay gửi form, một request mới lại được tạo ra. HTTP không mặc định nhớ bạn là ai qua các lần nhấp đó, trừ khi có dùng cơ chế bổ sung như cookie (nhằm “giả lập” trạng thái trên một giao thức stateless). 
+
+Các HTTP method (verb) cơ bản: HTTP định nghĩa nhiều phương thức để client yêu cầu hành động trên tài nguyên phía server. Phổ biến nhất là:
+
+- GET: Lấy dữ liệu/tài nguyên từ server (ví dụ: tải một trang HTML, lấy thông tin user). GET thường chỉ đọc dữ liệu và không làm thay đổi dữ liệu trên server. 
+
+- POST: Gửi dữ liệu lên server (ví dụ: gửi form đăng ký, upload file) để tạo mới hoặc xử lý thông tin. POST có thể làm thay đổi trạng thái dữ liệu trên server (ví dụ tạo một bản ghi mới trong CSDL).
+
+Ngoài ra HTTP còn có các phương thức khác như PUT (cập nhật tài nguyên), PATCH (cập nhật từng phần), DELETE (xóa tài nguyên) hay OPTIONS (hỏi server xem hỗ trợ những phương thức nào),... Mỗi phương thức có mục đích riêng, nhưng nhìn chung RESTful API thường tập trung vào 4 verb chính: GET (đọc), POST (tạo), PUT/PATCH (cập nhật), 
+DELETE (xóa). 
+
+Khi nào nên dùng HTTP: Trong thiết kế hệ thống, HTTP gần như là lựa chọn mặc định cho các tương tác client-server trên web. Nếu bạn xây dựng một dịch vụ web, ứng dụng web hoặc API công khai cho bên thứ ba, HTTP/HTTPS là sự lựa chọn hàng đầu vì tính phổ biến và tính tương thích cao. HTTP (đặc biệt kết hợp với JSON/XML) giúp client trên mọi nền tảng (trình duyệt, mobile, v.v.) dễ dàng tương tác với server mà không cần thư viện đặc biệt. Ngoài ra, HTTP stateless nên dễ mở rộng theo chiều ngang: server có thể xử lý mỗi request độc lập, giúp phân tải sang nhiều server khác nhau. 
+
+### [TCP](https://www.geeksforgeeks.org/computer-networks/what-is-transmission-control-protocol-tcp/): Giao thức kết nối tin cậy
+
+TCP (Transmission Control Protocol) là giao thức truyền tải hướng kết nối và đáng tin cậy. “Hướng kết nối” nghĩa là trước khi truyền dữ liệu, hai bên phải thiết lập kết nối với nhau; quá trình này thường được gọi là bắt tay ba bước (3-way handshake) giữa client và server. Sau khi kết nối thiết lập, TCP đảm bảo dữ liệu được truyền đi một cách đáng tin cậy, không bị thất lạc, và theo đúng thứ tự tới đích. Cụ thể, TCP đánh số thứ tự các gói tin, yêu cầu bên nhận gửi xác nhận (ACK) cho mỗi gói nhận được, và sẽ tự động gửi lại nếu phát hiện gói tin bị mất hoặc lỗi. Nhờ các cơ chế này, dữ liệu qua TCP gần như đến nơi nguyên vẹn hoặc sẽ được truyền lại đến khi thành công. 
+
+Ví dụ minh họa: Khi bạn tải xuống một tệp tin từ internet hoặc truyền dữ liệu giữa ứng dụng và cơ sở dữ liệu, thường quá trình này sử dụng TCP. Chẳng hạn, kết nối từ ứng dụng của bạn đến database (MySQL, PostgreSQL, v.v.) hoặc giao thức FTP truyền file đều chạy trên TCP - nhờ đó đảm bảo toàn bộ nội dung file hoặc truy vấn database tới nơi không sai sót. Nếu một gói tin chứa phần dữ liệu file bị thất lạc trên đường truyền, TCP sẽ tự động phát hiện và gửi lại gói đó, nhờ vậy file tải về không bị hỏng. Đặc điểm chính: TCP cung cấp nhiều tính năng mạnh mẽ ở tầng giao vận: 
+
+- Kết nối tin cậy: Thiết lập phiên kết nối riêng giữa hai bên, đảm bảo hai máy “bắt tay” khi trao đổi dữ liệu. 
+
+- Kiểm soát luồng và lỗi: TCP kiểm soát tốc độ gửi để tránh nghẽn mạng, và có cơ chế phát hiện lỗi/các gói tin thất lạc để gửi lại cho đến khi nhận thành công. 
+
+- Tuần tự hóa: Gói tin được đánh số thứ tự, đảm bảo bên nhận lắp ráp đúng thứ tự như ban đầu.
+
+Nhờ những cơ chế này, TCP phù hợp với các ứng dụng đòi hỏi độ chính xác của dữ liệu hơn là tốc độ. 
+
+Khi nào nên dùng TCP: Bạn nên chọn TCP cho các tình huống cần đảm bảo dữ liệu chính xác tuyệt đối. Ví dụ điển hình: truyền tệp tin, gửi email SMTP, kết nối CSDL, giao dịch tài chính - nơi việc mất mát hay sai lệch dữ liệu là không chấp nhận được. Trong thiết kế hệ thống, ở mức ứng dụng cao hơn, nhiều giao thức khác thực chất cũng xây dựng trên nền TCP để hưởng lợi từ tính tin cậy của nó. HTTP như đề cập ở trên thường chạy trên TCP (cổng 80 hoặc 443), nghĩa là mọi request HTTP đều được TCP đảm bảo chuyển đủ và đúng thứ tự. Do đó, khi thiết kế một API hay dịch vụ, nếu không nói gì khác thì ngầm định TCP đang được sử dụng bên dưới để truyền dữ liệu. 
+
+Tuy nhiên, TCP đòi hỏi thiết lập và duy trì kết nối, có bắt tay 3 bước, nên sẽ có độ trễ khởi tạo và chút overhead quản lý phiên. Vì vậy trong những trường hợp ưu tiên tốc độ hơn độ tin cậy (xem phần UDP bên dưới), ta có thể cân nhắc giao thức khác. 
+
+Mẹo phỏng vấn: Nếu được hỏi về tầng giao vận hoặc truyền thông tin giữa các thành phần trong hệ thống, đừng quên nhắc tới TCP như là xương sống của internet. Bạn có thể nói: “Em chọn TCP vì cần sự tin cậy: mọi gói tin đều đến nơi hoặc được truyền lại. Với những dữ liệu quan trọng như kết quả giao dịch ngân hàng hay file backup, TCP là phù hợp.” Chứng tỏ bạn hiểu ưu/nhược: TCP an toàn nhưng chậm hơn UDP do phải thiết lập kết nối và xác nhận gói tin.
 
 ### UDP: Giao thức "gửi là quên"
 
