@@ -529,6 +529,8 @@ Trong một hệ thống lớn, dữ liệu đóng vai trò trung tâm. Việc l
 
 ### SQL vs NoSQL: Lựa chọn cơ sở dữ liệu phù hợp
 
+
+
 ### Phân mảnh dữ liệu (Sharding/Partitioning)
 
 ### Chỉ mục (Index): Tối ưu hóa truy vấn
