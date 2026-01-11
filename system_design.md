@@ -679,6 +679,8 @@ Cuối cùng, khi bước vào phỏng vấn System Design, làm thế nào đ�
 
 ## <a id="mở-rộng-hệ-thống-và-tối-ưu-hiệu-suất-1"></a>Mở rộng hệ thống và tối ưu hiệu suất
 
+
+
 ### Cân bằng tải (Load Balancer)
 
 1. <a id="load-balancer-là-gì-và-vai-trò-của-nó"></a>**Load Balancer là gì và vai trò của nó?**
