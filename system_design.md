@@ -679,13 +679,43 @@ Cuối cùng, khi bước vào phỏng vấn System Design, làm thế nào đ�
 
 ## <a id="mở-rộng-hệ-thống-và-tối-ưu-hiệu-suất-1"></a>Mở rộng hệ thống và tối ưu hiệu suất
 
+Trong chương này, chúng ta sẽ tìm hiểu về ba kỹ thuật quan trọng giúp hệ thống mở rộng (scale) và tối ưu hiệu suất. Đó là cân bằng tải (Load Balancer), bộ nhớ đệm (Caching) và hàng đợi thông điệp (Message Queue). Đây đều là những thành phần quen thuộc trong thiết kế hệ thống hiện đại, giúp ứng dụng phục vụ được nhiều người dùng hơn, nhanh hơn và ổn định hơn. Văn phong của chương hướng dẫn này sẽ gần gũi như một cuộc trò chuyện, kèm theo những ví dụ minh họa đời thực để bạn dễ hình dung. Chúng ta hãy cùng bắt đầu nhé!
 
-
-### Cân bằng tải (Load Balancer)
+### Cân bằng tải ([Load Balancer](https://www.geeksforgeeks.org/system-design/what-is-load-balancer-system-design/))
 
 1. <a id="load-balancer-là-gì-và-vai-trò-của-nó"></a>**Load Balancer là gì và vai trò của nó?**
 
+Load Balancer (cân bằng tải) là một thành phần đứng trước một cụm máy chủ nhằm phân phối lưu lượng (các request từ người dùng) đến các máy chủ phía sau sao cho không máy chủ nào bị quá tải. Bạn có thể hình dung Load Balancer giống như nhân viên điều phối ở quầy giao dịch ngân hàng: khi có khách hàng đến (tương ứng với request), nhân viên này sẽ hướng dẫn họ tới một quầy giao dịch còn trống (tương ứng với một máy chủ) để được phục vụ. Nhờ có sự điều phối này, hệ thống đảm bảo rằng không có một quầy nào phải phục vụ quá nhiều khách cùng lúc, và trải nghiệm của khách hàng (người dùng) sẽ mượt mà, nhanh chóng hơn.
+
+Vai trò chính của Load Balancer gồm: 
+
+- Phân phối đều tải: Đảm bảo mỗi máy chủ xử lý lượng yêu cầu vừa phải, tránh tình trạng một máy gánh hết còn các máy khác rảnh rỗi. 
+
+- Tăng khả năng mở rộng (scalability): Khi lượng người dùng tăng cao, ta có thể bổ sung thêm máy chủ phía sau Load Balancer. Load Balancer sẽ tiếp tục phân phối request, giúp hệ thống mở rộng dễ dàng. 
+
+- Tăng độ sẵn sàng (availability): Nếu một máy chủ gặp sự cố, Load Balancer có thể ngưng gửi request đến máy đó và chuyển sang các máy khác. Người dùng sẽ ít ảnh hưởng khi một phần hệ thống bị lỗi. 
+
+- Đơn giản hóa kiến trúc: Người dùng chỉ cần kết nối đến Load Balancer (thường qua một URL hoặc địa chỉ IP duy nhất), không cần biết đằng sau có bao nhiêu máy chủ. Toàn bộ cụm máy chủ phía sau hoạt động như một máy chủ ảo duy nhất đối với người dùng. 
+
+Tóm lại, Load Balancer giúp hệ thống chịu tải tốt hơn và ổn định hơn. Đây là thành phần gần như không thể thiếu khi thiết kế hệ thống lớn hoặc các ứng dụng web phục vụ lượng người dùng đông đảo.
+
 2. <a id="cách-hoạt-động-và-các-thuật-toán-phân-phối"></a>**Cách hoạt động và các thuật toán phân phối**
+
+Một Load Balancer hoạt động như điểm trung gian giữa khách hàng và các máy chủ thực sự. Khi có request gửi tới, Load Balancer sẽ quyết định chuyển request đó tới máy chủ nào ở tầng sau. Quyết định này được thực hiện dựa trên các thuật toán phân phối mà ta có thể cấu hình cho Load Balancer. Dưới đây là một số thuật toán phổ biến: 
+
+- Round Robin (Vòng tròn luân phiên): Mỗi yêu cầu được phân lượt đến từng máy chủ theo thứ tự luân phiên. Ví dụ có 3 server A, B, C thì request 1 -> A, request 2 -> B, request 3 -> C, rồi request 4 lại quay vòng về A. Cách này đảm bảo phân phối tương đối đều, đơn giản như chia bài theo vòng. 
+
+- Least Connections (Ít kết nối nhất): Load Balancer sẽ theo dõi số lượng kết nối hoặc request đang xử lý trên mỗi máy chủ, và gửi request mới đến máy chủ nào đang bận ít nhất. Thuật toán này hiệu quả khi các request có thời gian xử lý không đồng đều. Ví dụ nếu server A đang xử lý 100 kết nối còn B chỉ 50, thì yêu cầu mới sẽ ưu tiên vào B. 
+
+- IP Hash: Thuật toán này dùng địa chỉ IP của client (người dùng) để tính toán và gán cố định mỗi IP client vào một máy chủ cụ thể. Nghĩa là cùng một người dùng (cùng IP) thì các request của họ luôn đi vào cùng một server. Cách này hữu ích để duy trì tính phiên (session stickiness) khi ta muốn người dùng tương tác với cùng một máy chủ (ví dụ phiên đăng nhập lưu ở memory của server thay vì database chung). 
+
+- Weighted Round Robin (Luân phiên theo trọng số): Biến thể của Round Robin, cho phép gán trọng số cho mỗi máy chủ. Máy chủ mạnh hơn (nhiều CPU/RAM hơn) có thể được nhận nhiều request hơn. Ví dụ server A (mạnh) trọng số 5, server B (yếu hơn) trọng số 1, thì Load Balancer sẽ gửi khoảng 5 request đến A rồi 1 request đến B luân phiên.
+
+- Thuật toán khác: Tùy hệ thống, còn nhiều thuật toán nâng cao như Least Response Time (máy nào phản hồi nhanh nhất sẽ được ưu tiên), Geo-location (phân phối theo địa lý, gần máy chủ nào thì vào máy đó), v.v. Nhưng đối với phỏng vấn thiết kế hệ thống ở mức cơ bản, bạn chỉ cần hiểu các thuật toán chính như trên (Round Robin, Least Connections, IP Hash) là đủ. 
+
+> Có thể tìm hiểu chi tiết các thuật toán tại [đây](https://www.geeksforgeeks.org/system-design/load-balancing-algorithms/)
+
+Ví dụ minh họa: Hãy tưởng tượng bạn quản lý một website bán hàng trực tuyến. Ban đầu, bạn chỉ có một máy chủ xử lý toàn bộ request. Khi số lượng người truy cập tăng lên, máy chủ này bắt đầu chậm lại. Bạn quyết định thêm hai máy chủ nữa (tổng cộng 3 máy chủ web có cùng chức năng). Lúc này, làm sao để người dùng truy cập mà sử dụng được cả 3 máy chủ? Giải pháp là đặt một Load Balancer ở phía trước. Mỗi khi người dùng gửi request (ví dụ mở trang sản phẩm), Load Balancer sẽ chia các request này đều ra 3 máy theo thuật toán Round Robin. Nhờ đó, không có máy nào bị quá tải, và người dùng được phục vụ nhanh hơn. Nếu một máy gặp sự cố, Load Balancer sẽ tự động chuyển hướng request sang 2 máy còn lại, nhờ đó website vẫn hoạt động liên tục. 
 
 3. <a id="load-balancer-tầng-4-vs-tầng-7-layer-4-vs-layer-7"></a>**Load Balancer tầng 4 vs tầng 7 (Layer 4 vs Layer 7)**
 
