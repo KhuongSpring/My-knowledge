@@ -717,9 +717,35 @@ Một Load Balancer hoạt động như điểm trung gian giữa khách hàng v
 
 Ví dụ minh họa: Hãy tưởng tượng bạn quản lý một website bán hàng trực tuyến. Ban đầu, bạn chỉ có một máy chủ xử lý toàn bộ request. Khi số lượng người truy cập tăng lên, máy chủ này bắt đầu chậm lại. Bạn quyết định thêm hai máy chủ nữa (tổng cộng 3 máy chủ web có cùng chức năng). Lúc này, làm sao để người dùng truy cập mà sử dụng được cả 3 máy chủ? Giải pháp là đặt một Load Balancer ở phía trước. Mỗi khi người dùng gửi request (ví dụ mở trang sản phẩm), Load Balancer sẽ chia các request này đều ra 3 máy theo thuật toán Round Robin. Nhờ đó, không có máy nào bị quá tải, và người dùng được phục vụ nhanh hơn. Nếu một máy gặp sự cố, Load Balancer sẽ tự động chuyển hướng request sang 2 máy còn lại, nhờ đó website vẫn hoạt động liên tục. 
 
-3. <a id="load-balancer-tầng-4-vs-tầng-7-layer-4-vs-layer-7"></a>**Load Balancer tầng 4 vs tầng 7 (Layer 4 vs Layer 7)**
+3. <a id="load-balancer-tầng-4-vs-tầng-7-layer-4-vs-layer-7"></a>**[Load Balancer tầng 4 vs tầng 7](https://www.geeksforgeeks.org/system-design/layer-4-load-balancing-vs-layer-7-load-balancing/) (Layer 4 vs Layer 7)**
+
+Khi tìm hiểu sâu hơn, bạn sẽ nghe đến khái niệm Load Balancer tầng 4 và Load Balancer tầng 7. Đây là cách phân loại dựa trên mô hình OSI - một mô hình mạng chia các tầng giao tiếp. Hiểu đơn giản:
+
+- Load Balancer tầng 4 (Layer 4): Hoạt động ở tầng Giao vận (Transport Layer), dựa trên thông tin địa chỉ mạng như IP và port của gói tin TCP/UDP. Load Balancer tầng 4 không hiểu nội dung bên trong của request; nó chỉ biết có một gói tin đến IP này, port này và chuyển tiếp đến một máy chủ dựa theo thuật toán đã chọn. Ưu điểm của LB tầng 4 là nhanh hơn vì nó xử lý ít thông tin (chỉ ở mức packet IP/port), phù hợp cho phân tải đơn giản. Tuy nhiên, nó không thể quyết định dựa trên nội dung; ví dụ không biết URL hay HTTP header là gì. 
+
+- Load Balancer tầng 7 (Layer 7): hoạt động ở tầng Ứng dụng (Application Layer), tức là hiểu được các giao thức ứng dụng như HTTP/HTTPS. LB tầng 7 đọc được nội dung request (URL, đường dẫn, cookie, header, thậm chí nội dung body). Do đó, nó có thể đưa ra quyết định thông minh hơn. Ví dụ: LB thấy request vào đường dẫn /video/720p thì chuyển tới cụm máy chủ chuyên phục vụ video độ phân giải thấp, còn /video/1080p sang máy chủ phục vụ độ phân giải cao hơn. Hoặc LB tầng 7 có thể terminate SSL (giải mã HTTPS) rồi mới chuyển request HTTP vào bên trong. Nhờ hiểu tầng ứng dụng, LB tầng 7 cho phép các tính năng như content-based routing (phân tải dựa trên nội dung) và hỗ trợ sticky session bằng cookie. Nhược điểm là do phải đọc/ghi và xử lý nhiều thông tin hơn nên LB tầng 7 thường chậm hơn LB tầng 4 một chút và tiêu tốn tài nguyên hơn. 
+
+Nên dùng LB tầng 4 hay tầng 7? Điều này tùy thuộc vào nhu cầu của hệ thống: 
+
+- Nếu bạn chỉ cần phân phối lưu lượng đơn thuần và muốn tốc độ tối đa, ít tốn tài nguyên, LB tầng 4 là đủ. Ví dụ cho các ứng dụng không phụ thuộc nội dung gói tin, hoặc các giao thức không phải HTTP (như game server dùng UDP, kết nối VPN, ...). 
+
+- Nếu ứng dụng web cần quyết định phức tạp dựa trên URL, cookie, hoặc cần chia tách dịch vụ (như tách traffic tĩnh/động, mobile/PC), bạn sẽ cần LB tầng 7. Đa số các website, dịch vụ web lớn (thương mại điện tử, streaming video, API) đều dùng B tầng 7 vì chúng cho phép linh hoạt cao trong điều phối request.
 
 4. <a id="khi-nào-cần-sử-dụng-load-balancer"></a>**Khi nào cần sử dụng Load Balancer?**
+
+Nếu hệ thống của bạn chỉ có một máy chủ và lượng người dùng nhỏ, có thể chưa cần đến Load Balancer. Nhưng khi bạn muốn hệ thống có thể mở rộng hoặc đạt dự phòng cao, Load Balancer trở thành cần thiết. Một số tình huống điển hình nên dùng Load Balancer:
+
+- Tăng lượng người dùng: Ứng dụng web bắt đầu có hàng ngàn, hàng triệu lượt truy cập mỗi ngày. Một máy chủ đơn lẻ không đáp ứng nổi, bạn cần nhiều máy chủ chạy song song -> cần Load Balancer để chia tải. 
+
+- High Availability (độ sẵn sàng cao): Bạn muốn hệ thống luôn hoạt động ngay cả khi một máy chủ hỏng. Với nhiều máy chủ và Load Balancer, nếu một máy "chết" thì LB chuyển lưu lượng sang máy khác, người dùng ít bị gián đoạn. 
+
+- Tách biệt chức năng: Đôi khi bạn có nhiều loại máy chủ cho các mục đích khác nhau (ví dụ: server phục vụ ảnh, server phục vụ API). Một Load Balancer tầng 7 có thể dựa theo đường dẫn để gửi đúng loại request đến đúng nhóm server tương ứng. 
+
+- Hiệu năng và bảo mật: Một số Load Balancer tích hợp sẵn chức năng như nén nội dung, lưu cache tạm thời, hoặc tường lửa ứng dụng (WAF). Đặt LB phía trước có thể giảm tải công việc cho các máy chủ ứng dụng phía sau. 
+
+Tóm lại, bất cứ hệ thống nào cần mở rộng quy mô hay nâng cao tính ổn định đều sẽ sớm cần tới Load Balancer. Đây là lý do tại sao trong phỏng vấn thiết kế hệ thống, gần như chắc chắn người phỏng vấn mong đợi bạn đề cập đến Load Balancer khi nói về kiến trúc nhiều máy chủ.
+
+Gợi ý khi phỏng vấn: Nếu được hỏi về Load Balancer, bạn có thể trả lời như sau: "Load Balancer giống như một bộ phận phân làn giao thông cho các request. Nó giúp phân phối đều request đến nhiều server phía sau, tránh cho một server bị quá tải. Em có thể dùng thuật toán Round Robin để chia đều hoặc Least Connections để gửi request tới server nào đang rảnh nhất. Với web app, em sẽ dùng Load Balancer tầng 7 để nó đọc được URL và quyết định thông minh hơn, ví dụ tách nội dung tĩnh/động. Nhờ có Load Balancer, hệ thống của em có thể mở rộng dễ dàng bằng cách thêm server, và cũng đảm bảo nếu một server hỏng thì lưu lượng sẽ được chuyển sang server khác, không ảnh hưởng người dùng." Câu trả lời như vậy vừa có ví dụ, vừa cho thấy bạn hiểu vai trò và cách hoạt động của Load Balancer. 
 
 ### Bộ nhớ đệm (Caching)
 
