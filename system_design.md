@@ -747,11 +747,41 @@ Tóm lại, bất cứ hệ thống nào cần mở rộng quy mô hay nâng cao
 
 Gợi ý khi phỏng vấn: Nếu được hỏi về Load Balancer, bạn có thể trả lời như sau: "Load Balancer giống như một bộ phận phân làn giao thông cho các request. Nó giúp phân phối đều request đến nhiều server phía sau, tránh cho một server bị quá tải. Em có thể dùng thuật toán Round Robin để chia đều hoặc Least Connections để gửi request tới server nào đang rảnh nhất. Với web app, em sẽ dùng Load Balancer tầng 7 để nó đọc được URL và quyết định thông minh hơn, ví dụ tách nội dung tĩnh/động. Nhờ có Load Balancer, hệ thống của em có thể mở rộng dễ dàng bằng cách thêm server, và cũng đảm bảo nếu một server hỏng thì lưu lượng sẽ được chuyển sang server khác, không ảnh hưởng người dùng." Câu trả lời như vậy vừa có ví dụ, vừa cho thấy bạn hiểu vai trò và cách hoạt động của Load Balancer. 
 
-### Bộ nhớ đệm (Caching)
+### Bộ nhớ đệm ([Caching](https://www.geeksforgeeks.org/system-design/caching-system-design-concept-for-beginners/))
 
 1. <a id="cache-là-gì-và-có-lợi-ích-gì"></a>**Cache là gì và có lợi ích gì?**
 
+Cache (bộ nhớ đệm) là một cơ chế lưu trữ tạm thời dữ liệu phục vụ các yêu cầu truy xuất nhanh hơn. Thay vì mỗi lần cần dữ liệu đều phải lấy từ nguồn gốc (ví dụ: đọc từ cơ sở dữ liệu hoặc gọi một dịch vụ bên ngoài chậm chạp), ta có thể lưu lại bản sao của dữ liệu ở một nơi truy xuất nhanh (như trong RAM, trên ổ đĩa gần người dùng, v.v.). Lần sau nếu cần lại dữ liệu đó, hệ thống sẽ lấy ngay từ cache, sẽ nhanh hơn rất nhiều so với lấy từ nguồn gốc. 
+
+Hãy liên hệ với đời sống: Bạn có nhớ lần đầu tiên đi đến một khu phố mới, bạn phải mở bản đồ hoặc hỏi đường mất thời gian. Nhưng từ lần thứ hai trở đi, bạn đã nhớ đường (bạn đã "cache" đường đi trong trí nhớ), nên đi nhanh hơn hẳn. Tương tự, máy tính khi đã có dữ liệu trong cache (nhớ rồi) thì phục vụ người dùng nhanh hơn là mỗi lần đều đi tra cứu từ đầu. 
+
+Lợi ích của caching: 
+
+- Tăng tốc độ phản hồi: Dữ liệu từ cache (thường ở RAM hoặc ngay gần người dùng) nhanh hơn dữ liệu từ database gốc hay từ server ở xa. Ví dụ, cache trong RAM có thể nhanh gấp hàng trăm lần đọc từ ổ cứng, và nhanh hơn nhiều lần so với việc gọi qua mạng. 
+
+- Giảm tải cho hệ thống gốc: Khi nhiều yêu cầu được phục vụ từ cache, số lượng truy vấn đến database hoặc dịch vụ gốc sẽ giảm. Database sẽ đỡ bị quá tải hơn, cho phép phục vụ nhiều người dùng hơn. 
+
+- Tiết kiệm tài nguyên và chi phí: Việc giảm tải cho máy chủ gốc có thể giúp bạn tiết kiệm chi phí mở rộng hạ tầng. Thay vì phải mua thêm một database server mạnh, bạn có thể chỉ cần thêm một lớp cache (ví dụ dùng Redis, Memcached) để gánh bớt. 
+
+- Trải nghiệm người dùng tốt hơn: Thời gian phản hồi nhanh giúp người dùng hài lòng, web/app mượt mà. Điều này đặc biệt quan trọng cho các ứng dụng thời gian thực hoặc có lượng người dùng lớn.
+
+Tuy nhiên, cache không phải "miễn phí": bạn sẽ tốn thêm bộ nhớ để lưu cache, và phức tạp hơn trong việc đảm bảo dữ liệu hợp lệ, không bị cũ (vì dữ liệu gốc thay đổi nhưng cache có thể vẫn lưu bản cũ, dẫn tới "cache stale"). Phần sau chúng ta sẽ nói về chiến lược để cập nhật cache.
+
 2. <a id="các-vị-trí-có-thể-đặt-cache"></a>**Các vị trí có thể đặt cache**
+
+Cache có thể xuất hiện ở nhiều tầng khác nhau trong một hệ thống. Mục tiêu chung là đưa dữ liệu tới gần người dùng nhất có thể hoặc trong môi trường truy cập nhanh nhất. Dưới đây là các vị trí phổ biến bạn có thể triển khai cache, kèm ví dụ: 
+
+- Cache phía Client (người dùng): Đây là cache ngay trên thiết bị hoặc trình duyệt của người dùng. Ví dụ: trình duyệt web có cơ chế cache các file tĩnh (hình ảnh, CSS, JavaScript). Nhờ đó khi bạn mở một trang web lần thứ hai, nhiều thành phần không cần tải lại từ server vì đã có sẵn trong cache của trình duyệt. Một ví dụ khác là các ứng dụng di động thường lưu dữ liệu (như danh sách bài viết mới nhất) trên bộ nhớ điện thoại, giúp người dùng có thể xem lại nhanh chóng và giảm băng thông mạng. 
+
+- CDN Cache (máy chủ biên (Edge server)/đám mây (Cloud)): CDN (Content Delivery Network) là mạng lưới các máy chủ đặt ở nhiều nơi trên thế giới. CDN giữ bản sao cache của nội dung tĩnh (hình ảnh, video, file CSS/JS, nội dung không đổi thường xuyên) và khi người dùng gần khu vực nào truy cập, CDN sẽ cung cấp nội dung từ máy chủ gần họ nhất. Ví dụ: một người dùng ở Việt Nam truy cập trang web đặt máy chủ gốc ở Mỹ, nhưng hình ảnh và video có thể được phân phát từ server CDN tại Việt Nam - nhanh hơn rất nhiều so với việc tải từ Mỹ. CDN là một dạng cache tầng mạng, rất hữu ích để tăng tốc độ truy cập toàn cầu. 
+
+- Cache tại Reverse Proxy (máy chủ proxy ngược): Một reverse proxy như [Nginx](https://nginx.org/en/), [Varnish](https://www.varnish-software.com/products/varnish-cache/) có thể được đặt phía trước máy chủ ứng dụng. Proxy này có thể lưu cache kết quả của các request phổ biến. Ví dụ: trang chủ của một tờ báo điện tử có thể được cache trong 60 giây tại lớp proxy. Khi hàng nghìn người dùng cùng truy cập trang chủ trong khoảng thời gian đó, proxy sẽ phục vụ từ cache thay vì bắt ứng dụng xử lý lại từng lần. Kết quả: giảm tải đáng kể cho máy chủ ứng dụng và tăng tốc độ phản hồi. 
+
+- Cache trong ứng dụng (Application Cache): Ở tầng ứng dụng, lập trình viên có thể chủ động lưu lại những dữ liệu thường dùng trong bộ nhớ. Ví dụ: một ứng dụng web có thể cache kết quả của một truy vấn database tốn kém (như tính toán thống kê, danh sách sản phẩm bán chạy) trong biến toàn cục hoặc trong một kho cache nhanh (Redis, Memcached). Lần sau nếu có request tương tự, ứng dụng kiểm tra cache và trả về ngay thay vì query database. Loại cache này thường triển khai bằng cách tích hợp thư viện hoặc dịch vụ cache vào code của ứng dụng. 
+
+- Cache tại cơ sở dữ liệu: Nhiều hệ quản trị cơ sở dữ liệu có sẵn cơ chế cache bên trong. Ví dụ MySQL có Query Cache (cache kết quả truy vấn), hoặc một số cơ chế như buffer pool trong database lưu dữ liệu hay dùng trong RAM. Ngoài ra, một cách hiểu khác về cache ở tầng này là sử dụng các hệ thống như Redis, Memcached (thường gọi chung là database cache hoặc caching layer) như một tầng dữ liệu nhanh. Ứng dụng có thể xem nó như một database đọc nhanh, lưu các cặp key-value mà truy xuất rất nhanh. Tuy nhiên, vì Redis/Memcached không phải database chính, ta vẫn coi nó là cache hỗ trợ cho database chính phía sau (thường là SQL hoặc NoSQL database chậm hơn).
+
+Tất cả các tầng cache trên có thể được dùng kết hợp trong một hệ thống lớn. Ví dụ: một trang web có thể sử dụng CDN cho nội dung tĩnh, dùng cache ứng dụng hoặc Redis cho dữ liệu động, đồng thời trình duyệt người dùng cũng cache để giảm truy cập mạng. Hiểu được mỗi tầng cache giúp bạn thiết kế hệ thống tối ưu hơn và cũng có thể giải thích trong phỏng vấn khi nói về tối ưu hiệu suất.
 
 3. <a id="các-chiến-lược-cập-nhật-cache-cache-update-strategies"></a>**Các chiến lược cập nhật cache (Cache update strategies)**
 
