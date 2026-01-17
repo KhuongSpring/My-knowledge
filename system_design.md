@@ -785,6 +785,8 @@ Tất cả các tầng cache trên có thể được dùng kết hợp trong m�
 
 3. <a id="các-chiến-lược-cập-nhật-cache-cache-update-strategies"></a>**Các chiến lược cập nhật cache (Cache update strategies)**
 
+
+
 4. <a id="gợi-ý-khi-phỏng-vấn-về-caching"></a>**Gợi ý khi phỏng vấn về Caching**
 
 ### Hàng đợi thông điệp (Message Queue)
