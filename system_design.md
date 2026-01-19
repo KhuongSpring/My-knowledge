@@ -818,15 +818,59 @@ Ví dụ minh họa việc dùng cache: Giả sử bạn xây dựng một ứng
 
 Khi nói về tối ưu hiệu suất hệ thống trong phỏng vấn, gần như chắc chắn bạn nên nhắc đến caching. Nhà tuyển dụng muốn nghe rằng bạn biết sử dụng cache để giảm tải và tăng tốc. Bạn có thể trình bày như sau: "Để cải thiện hiệu suất, em sẽ áp dụng cache để lưu những dữ liệu được truy cập thường xuyên. Ví dụ, thay vì mỗi lần đều đọc database, em có thể lưu kết quả truy vấn vào Redis (một cache lưu trong RAM) trong vài phút. Nhờ đó các request sau sẽ lấy dữ liệu từ cache nhanh hơn rất nhiều. Em cũng chú ý cập nhật hoặc vô hiệu hóa cache khi dữ liệu nguồn thay đổi để đảm bảo tính nhất quán. Ví dụ dùng chiến lược cache-aside: khi ghi dữ liệu mới vào DB thì xóa cache cũ đi, còn khi đọc thì kiểm tra cache trước, cache miss mới truy vấn DB." Câu trả lời này cho thấy bạn hiểu cả lợi ích lẫn cách quản lý dữ liệu cache. Ngoài ra, nếu có thể, hãy đưa ví dụ cụ thể như cache kết quả truy vấn sản phẩm bán chạy, cache HTML của trang, hoặc nhắc đến các tầng cache (client, CDN) nếu phù hợp với câu hỏi. Văn phong nên tự tin nhưng tránh quá sa đà thuật ngữ, hãy tập trung vào ý chính: cache = truy xuất nhanh hơn và giảm tải backend.
 
-### Hàng đợi thông điệp (Message Queue)
+### Hàng đợi thông điệp ([Message Queue](https://www.geeksforgeeks.org/system-design/message-queues-system-design/))
 
 1. <a id="khái-niệm-hàng-đợi-thông-điệp--xử-lý-bất-đồng-bộ"></a>**Khái niệm hàng đợi thông điệp & xử lý bất đồng bộ**
 
+Trong hệ thống nhỏ, khi người dùng gửi một yêu cầu, máy chủ xử lý và trả lời ngay (xử lý đồng bộ). Nhưng ở các hệ thống lớn, đôi khi ta không muốn hoặc không thể xử lý mọi việc ngay lập tức trong cùng một luồng. Hàng đợi thông điệp (Message Queue) xuất hiện như 
+một giải pháp cho xử lý bất đồng bộ. 
+
+Hãy tưởng tượng một hàng đợi lấy số thứ tự ở quán ăn đông khách. Bạn đến quầy gọi món, thay vì người bán làm món của bạn ngay lập tức (và những người sau phải chờ bạn xong), họ đưa bạn một số thứ tự và bạn có thể ngồi đợi. Yêu cầu của bạn đã được đưa vào hàng đợi. Đầu bếp sẽ lần lượt đọc các số thứ tự (thông điệp) từ hàng đợi và chế biến món ăn. Khi món của bạn làm xong, số của bạn được gọi và bạn nhận đồ ăn. Ở đây, người gọi món đóng vai trò producer (sinh ra thông điệp yêu cầu món ăn), đầu bếp là consumer (tiêu thụ và xử lý yêu cầu), còn message queue chính là xấp phiếu gọi món theo thứ tự. 
+
+Tương tự trong kiến trúc phần mềm, Message Queue là một thành phần trung gian giữ các thông điệp (thường là nhiệm vụ cần làm hoặc dữ liệu cần xử lý). Thành phần gửi thông điệp (producer) sẽ đưa thông điệp vào queue rồi tiếp tục công việc của mình, không cần đợi kết quả ngay. Một (hoặc nhiều) thành phần khác (consumer) sẽ lấy thông điệp ra khỏi queue và xử lý nó theo tốc độ của riêng mình. Đây chính là mô hình xử lý bất đồng bộ: công việc được làm ở hậu trường, không chặn luồng chính đang tương tác với người dùng.
+
 2. <a id="khi-nào-nên-dùng-hàng-đợi"></a>**Khi nào nên dùng hàng đợi**
+
+Message Queue hữu ích trong rất nhiều trường hợp, đặc biệt là khi ta cần tách riêng công việc để xử lý sau hoặc điều hòa nhịp độ giữa các thành phần hệ thống. Một số tình huống thường gặp nên dùng hàng đợi:
+
+- Xử lý tác vụ nền (background jobs): Khi người dùng thực hiện một hành động mà công việc để hoàn thành quá lâu hoặc không cần thiết phải xong ngay lập tức, ta có thể đưa công việc đó vào queue. Ví dụ: Người dùng đăng ký tài khoản -> ta gửi email xác nhận. Việc gửi email có thể mất vài giây, thay vì bắt người dùng chờ trang đăng ký xoay vòng, ta trả lời ngay "Đăng ký thành công" và đẩy nhiệm vụ gửi email vào hàng đợi để hệ thống gửi sau. Người dùng không phải chờ, còn email sẽ được gửi trong nền. 
+
+- Giảm tải cho hệ thống đỉnh điểm: Khi có lượng lớn yêu cầu đến đột ngột (flash sale, sự kiện livestream, v.v.), hàng đợi có thể đóng vai trò như một bộ đệm. Các yêu cầu được xếp hàng trong queue thay vì tất cả dồn thẳng đến server xử lý cùng lúc. Server sẽ lấy yêu cầu ra dần dần để xử lý ở tốc độ nó chịu được. Như vậy hệ thống không bị "sập" vì quá tải, chỉ là người dùng có thể nhận kết quả chậm hơn một chút. Nhưng còn hơn là hệ thống chết hẳn, đúng không? 
+
+- Giao tiếp giữa các dịch vụ (microservices): Trong kiến trúc vi dịch vụ (microservices), các thành phần thường tách biệt và giao tiếp qua message queue để giảm phụ thuộc. Ví dụ: service A tạo một đơn hàng xong, nó không gọi thẳng service B (kho hàng) và service C (thanh toán) một cách đồng bộ. Thay vào đó, A sẽ gửi message "Order Created" vào queue. Các service B, C lắng nghe queue, nhận được message thì tự xử lý công việc của mình (B giảm số lượng tồn kho, C thu tiền...). Cách làm này giúp các service không bị khóa cứng chờ nhau, và nếu một service tạm thời chậm thì message vẫn nằm trong queue đợi, không làm sập dây chuyền. 
+
+- Tính năng xếp hạng, thống kê, logging...: Các hệ thống phân tích số liệu hoặc ghi log hoạt động thường dùng queue để thu thập sự kiện. Ví dụ: mỗi hành động của người dùng (click, view) được đẩy vào một queue "tracking". Hệ thống phân tích sẽ tiêu thụ dần các sự kiện này và tổng hợp báo cáo. Làm như vậy giảm tải cho server xử lý chính, và cũng tránh mất dữ liệu khi có quá nhiều sự kiện cùng lúc (vì queue có thể lưu lại, xử lý sau).
+
+Tóm lại, hãy nghĩ đến Message Queue khi bạn muốn thực hiện điều gì đó "không cần kết quả tức thì" hoặc cần một cơ chế đệm giữa hai hệ thống có tốc độ xử lý khác nhau. 
 
 3. <a id="một-số-hệ-thống-message-queue-phổ-biến"></a>**Một số hệ thống Message Queue phổ biến**
 
+Có nhiều công cụ và dịch vụ hiện thực hóa cơ chế hàng đợi thông điệp. Khi đi phỏng vấn hoặc thảo luận thiết kế, việc nêu tên vài hệ thống phổ biến sẽ ghi điểm vì cho thấy bạn có tìm hiểu thực tế:
+
+- [RabbitMQ](https://www.geeksforgeeks.org/blogs/introduction-to-rabbitmq/): RabbitMQ là message broker mã nguồn mở rất thông dụng. Nó triển khai giao thức AMQP và thường được dùng cho các hàng đợi tác vụ (như xử lý background jobs). RabbitMQ hỗ trợ nhiều tính năng như routing linh hoạt (qua exchange, routing key), xác nhận message, cơ chế retry, v.v. Ưu điểm: dễ dùng, đáng tin cậy cho các trường hợp yêu cầu đảm bảo message được giao (reliability). 
+
+- [Apache Kafka](https://www.geeksforgeeks.org/apache-kafka/apache-kafka/): Kafka thực chất là một nền tảng streaming phân tán, nhưng cũng thường được xếp vào nhóm hàng đợi thông điệp. Kafka được thiết kế cho throughput rất cao, lưu trữ message rất bền vững và cho phép subscribe theo nhóm (publish-subscribe). Kafka phù hợp khi bạn cần xử lý lượng lớn sự kiện (như log, sự kiện người dùng, dữ liệu thời gian thực) với tốc độ cao và muốn lưu lại lịch sử các message. 
+
+- [AWS SQS](https://www.geeksforgeeks.org/devops/aws-sqs/) (Amazon Simple Queue Service): Đây là dịch vụ hàng đợi hoàn toàn quản lý bởi Amazon Web Services. SQS rất dễ sử dụng: bạn tạo một queue trên AWS và các ứng dụng có thể gửi/nhận message mà không phải lo vận hành máy chủ. SQS đảm bảo độ tin cậy cao, tự động mở rộng và bạn trả phí theo lượng sử dụng. Tương tự SQS, các nền tảng cloud khác cũng có dịch vụ queue (Azure Service Bus, Google Cloud).
+
+> Bạn có thể đọc sự khác nhau của:
+> - RabbitMQ & SQS tại [đây](https://www.geeksforgeeks.org/computer-networks/difference-between-rabbitmq-vs-sqs/)
+> - RabbitMQ & Apache Kafka tại [đây](https://www.geeksforgeeks.org/apache-kafka/kafka-vs-rabbitmq/)
+> - SQS & Apache Kafka tại [đây](https://www.geeksforgeeks.org/data-engineering/apache-kafka-vs-amazon-sqs/)
+
+Ngoài ra, còn nhiều cái tên khác như ActiveMQ, IBM MQ, NSQ, Google Pub/Sub... Mỗi cái có ưu điểm riêng, nhưng nguyên lý chung của chúng đều là gửi-nhận message bất đồng bộ qua hàng đợi. 
+
 4. <a id="mô-hình-producer---queue---consumer"></a>**Mô hình Producer - Queue - Consumer**
+
+Như đã giải thích qua ví dụ quán ăn, mô hình tổng quát của hệ thống sử dụng message queue gồm ba thành phần chính:
+
+- Producer (nhà sản xuất thông điệp): Đây là thành phần gửi message vào queue. Producer có thể là một phần của ứng dụng web, một service, hay thậm chí một script cron. Nhiệm vụ của Producer là tạo ra thông điệp mô tả công việc hoặc dữ liệu cần xử lý và đẩy nó vào hàng đợi. Ví dụ: web server nhận yêu cầu upload ảnh từ người dùng -> tạo message "resize ảnh X.png" và đưa vào queue "ImageTasks". 
+
+- Message Queue (hàng đợi thông điệp): Thành phần này giữ các message đã gửi cho đến khi có người nhận xử lý. Queue thường hoạt động theo nguyên tắc FIFO (First In First Out - vào trước ra trước) trừ khi có cấu hình ưu tiên khác. Mỗi message khi nằm trong queue sẽ đợi cho đến khi có consumer lấy nó ra. Queue có thể nằm trong bộ nhớ (nhanh nhưng mất dữ liệu nếu sập) hoặc ghi ra đĩa (chậm hơn chút nhưng bền vững). Nhiều hệ thống MQ (như RabbitMQ, Kafka) cho phép cluster hóa để đảm bảo queue không phải điểm thất bại duy nhất. 
+
+- Consumer (người tiêu thụ thông điệp): Đây là thành phần nhận message từ queue và thực hiện công việc tương ứng. Consumer thường chạy dưới dạng một hoặc nhiều tiến trình độc lập (có thể trên máy khác, container khác). Khi có sẵn năng lực xử lý, consumer sẽ lấy message kế tiếp từ queue (quá trình này thường gọi là poll hoặc subscribe tùy hệ thống) và thực thi. Ví dụ: một tiến trình worker nhận message "resize ảnh X.png" từ queue -> nó tiến hành resize ảnh đó và lưu kết quả. Sau khi xử lý xong, consumer có thể gửi một thông điệp phản hồi hoặc cập nhật trạng thái (không bắt buộc, tùy thiết kế hệ thống).
+
+Quan trọng: trong mô hình này, producer và consumer không giao tiếp trực tiếp với nhau, chúng tách biệt thông qua queue. Producer không cần biết có bao nhiêu consumer, xử lý nhanh chậm ra sao; cứ đẩy message xong là xong việc của nó. Consumer cũng không biết chính xác ai gửi message, chỉ cần lấy message rồi làm. Điều này tạo ra tính decoupling (rời rạc) giữa các thành phần, giúp hệ thống linh hoạt và dễ mở rộng: muốn nhanh hơn, ta có thể tăng số lượng consumer chạy song song để xử lý nhiều message cùng lúc.
 
 5. <a id="cơ-chế-backpressure-phản-áp-lực-trong-hàng-đợi"></a>**Cơ chế backpressure (phản áp lực) trong hàng đợi**
 
