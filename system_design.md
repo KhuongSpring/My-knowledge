@@ -886,7 +886,15 @@ Từ khóa "backpressure" thường xuất hiện khi nói về các hệ thốn
 
 6. <a id="ví-dụ-minh-họa-sử-dụng-message-queue"></a>**Ví dụ minh họa sử dụng Message Queue**
 
+Hãy cùng xét một ví dụ để thấy rõ hơn lợi ích của message queue: Bạn xây dựng một trang web cho phép người dùng upload video và trang web sẽ xử lý chuyển đổi video đó (đổi định dạng, nén lại) sau khi tải lên. Quá trình chuyển đổi video có thể tốn cả phút, không thể bắt người dùng chờ trang web load lâu như vậy. Giải pháp: khi người dùng upload xong, server web sẽ lưu video, sau đó đưa một message vào hàng đợi (ví dụ queue "VideoProcessing") với nội dung "video ID 123 đã upload, hãy chuyển đổi nó". Sau đó, server phản hồi ngay cho người dùng (ví dụ: "Video của bạn đang được xử lý, bạn sẽ nhận được thông báo khi xong"). Bên phía hậu trường, bạn có một cụm các consumer (worker servers) chuyên xử lý video, chúng liên tục lắng nghe queue "VideoProcessing". Khi bắt được message "video 123", một worker sẽ lấy file video 123 ra, tiến hành chuyển đổi định dạng. Xong xuôi, nó có thể cập nhật trạng thái video trong database là "đã xử lý", và gửi email hoặc thông báo realtime cho người dùng biết đã xong. 
+
+Trong ví dụ trên, người dùng không phải chờ lâu, trang web không bị treo; phần việc nặng đã được đẩy qua hàng đợi cho các worker xử lý song song. Nếu nhiều người cùng upload, các video sẽ xếp hàng và lần lượt được xử lý, hoặc nếu bạn có nhiều worker thì có thể xử lý nhiều video cùng lúc. Đây chính là sức mạnh của kiến trúc bất đồng bộ với message queue.
+
 7. <a id="gợi-ý-khi-phỏng-vấn-về-message-queue"></a>**Gợi ý khi phỏng vấn về Message Queue**
+
+Khi trả lời phỏng vấn về thiết kế hệ thống, nếu nhắc đến việc xử lý bất đồng bộ hoặc tích hợp các thành phần rời rạc, bạn nên đưa ra ý tưởng sử dụng message queue. Một cách diễn đạt có thể như sau: "Để hệ thống chịu tải tốt hơn, em sẽ tách các công việc nặng ra xử lý bất đồng bộ bằng message queue. Ví dụ, khi người dùng thực hiện hành động A, thay vì xử lý tất cả ngay lập tức, em sẽ đẩy một message vào queue để xử lý sau. Thành phần xử lý sẽ chạy nền, lấy message ra và hoàn thành công việc. Cách làm này giúp giảm thời gian phản hồi cho người dùng và làm hệ thống linh hoạt hơn. Em có thể dùng RabbitMQ hoặc Kafka cho hàng đợi này. Nếu lượng message tăng đột biến, em sẽ tăng số lượng consumer xử lý song song, đồng thời theo dõi độ dài queue để áp dụng backpressure nếu cần thiết." 
+
+Câu trả lời trên thể hiện bạn hiểu vì sao dùng queue (giảm thời gian chờ, decouple), biết ví dụ cụ thể (đưa tác vụ gửi email, xử lý video vào queue), và còn ghi điểm khi nhắc đến việc mở rộng consumer hay cơ chế backpressure khi tải cao. Tất nhiên, hãy tùy tình huống mà trả lời cho phù hợp, nhưng luôn nhớ nhấn mạnh lợi ích cốt lõi: Message Queue giúp hệ thống linh hoạt, chịu tải tốt hơn bằng cách phi đồng bộ hóa các tác vụ.
 
 ## <a id="idempotency-và-cơ-chế-khóa-trong-hệ-thống-phân-tán-1"></a>Idempotency và cơ chế khóa trong hệ thống phân tán
 
