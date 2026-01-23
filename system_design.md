@@ -783,9 +783,27 @@ Cache có thể xuất hiện ở nhiều tầng khác nhau trong một hệ th�
 
 Tất cả các tầng cache trên có thể được dùng kết hợp trong một hệ thống lớn. Ví dụ: một trang web có thể sử dụng CDN cho nội dung tĩnh, dùng cache ứng dụng hoặc Redis cho dữ liệu động, đồng thời trình duyệt người dùng cũng cache để giảm truy cập mạng. Hiểu được mỗi tầng cache giúp bạn thiết kế hệ thống tối ưu hơn và cũng có thể giải thích trong phỏng vấn khi nói về tối ưu hiệu suất.
 
-3. <a id="các-chiến-lược-cập-nhật-cache-cache-update-strategies"></a>**Các chiến lược cập nhật cache (Cache update strategies)**
+3. <a id="các-chiến-lược-cập-nhật-cache-cache-update-strategies"></a>**Các chiến lược cập nhật cache ([Cache update strategies](https://www.geeksforgeeks.org/dbms/what-is-caching-strategies-in-dbms/))**
 
+Một thách thức quan trọng khi dùng cache là làm sao để dữ liệu trong cache luôn phù hợp (hợp lệ) so với dữ liệu gốc. Nếu cache quá cũ (stale data), người dùng có thể thấy thông tin sai lệch. Có một câu nói vui trong khoa học máy tính: "Có hai việc khó nhất: đặt tên biến, xử lý cache invalidation, và off-by-one error." Ý nói việc invalidation cache (làm mới/ghi đè dữ liệu cache) là rất khó. Dưới đây, chúng ta sẽ thảo luận một số chiến lược phổ biến để cập nhật dữ liệu cache khi dữ liệu gốc thay đổi:
 
+- Cache-Aside (Lazy Loading): Đây là chiến lược phổ biến và dễ triển khai nhất. Ứng dụng đọc dữ liệu "bên cạnh" cache. Cụ thể: 
+    - Khi cần dữ liệu X, ứng dụng sẽ kiểm tra trong cache xem có X chưa. 
+    - Nếu cache có X (cache hit), lấy ra và dùng ngay. 
+    - Nếu cache không có (cache miss), ứng dụng sẽ truy vấn dữ liệu gốc (ví dụ database) để lấy X. Sau khi lấy được X, lưu bổ sung X vào cache để lần sau dùng cho nhanh, rồi trả kết quả về. 
+
+    Khi dữ liệu X được cập nhật (write), ứng dụng ghi trực tiếp vào database và xóa (invalidate) cache của X (hoặc cập nhật cache nếu muốn). Chiến lược cache-aside này còn gọi là lazy loading vì chỉ khi nào cần mới nạp dữ liệu vào cache. Ưu điểm: đơn giản, ứng dụng kiểm soát được khi nào đọc/ghi cache. Nhược: lần đầu tiên cache miss sẽ vẫn chậm do phải xuống database, và lập trình viên phải cẩn thận việc xóa cache khi ghi để tránh dữ liệu cũ. 
+
+- Write-Through: Chiến lược này xử lý ở lúc ghi dữ liệu. Mỗi khi có thay đổi (ghi mới hoặc cập nhật dữ liệu), thay vì chỉ ghi vào database, ứng dụng hoặc hệ thống sẽ đồng thời ghi vào cache.Cụ thể: 
+    - Ứng dụng ghi dữ liệu X -> hệ thống ghi ngay X vào database và cập nhật cả cache X. 
+    - Lần sau đọc X, chắc chắn cache có dữ liệu mới nhất (vì đã được cập nhật tức thời khi ghi). 
+    
+    Write-through đảm bảo tính nhất quán cao giữa cache và nguồn dữ liệu chính, vì bất cứ thay đổi nào cũng lập tức có trên cache. Nhược điểm là hiệu năng ghi chậm hơn: mỗi lần ghi phải thực hiện hai thao tác (DB và cache). Nếu bất kỳ thao tác nào thất bại, thường phải rollback để giữ dữ liệu đồng bộ, điều này làm phức tạp hệ thống. Write-through thường phù hợp nếu ứng dụng đọc nhiều, ghi ít, và yêu cầu dữ liệu đọc ra phải thật mới. Ví dụ: caching cấu hình hệ thống hoặc danh sách tham số mà thỉnh thoảng mới đổi, còn khi đọc thì muốn chắc luôn đúng. 
+
+- Write-Back (Write-Behind): Đây là chiến lược ngược lại một phần với write through. Ở write-back, ứng dụng khi ghi sẽ chỉ ghi vào cache trước, coi như cache là vùng đệm tạm cho viết. Dữ liệu trong cache sẽ được đánh dấu là "bẩn" (dirty). Hệ thống sẽ ghi ngược trở lại database sau theo lịch trình hoặc khi rảnh: 
+
+    - Ứng dụng ghi X -> ghi vào cache (nhanh) và coi như đã xong đối với người dùng. 
+    - Hệ thống nền (background process) định kỳ lấy các mục "dirty" trong cache để ghi xuống database (có thể gộp nhiều ghi thành một batch lớn).
 
 4. <a id="gợi-ý-khi-phỏng-vấn-về-caching"></a>**Gợi ý khi phỏng vấn về Caching**
 
