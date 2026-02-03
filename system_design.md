@@ -874,6 +874,16 @@ Quan trọng: trong mô hình này, producer và consumer không giao tiếp tr�
 
 5. <a id="cơ-chế-backpressure-phản-áp-lực-trong-hàng-đợi"></a>**Cơ chế backpressure (phản áp lực) trong hàng đợi**
 
+Khi sử dụng hàng đợi, một vấn đề có thể nảy sinh: producer gửi message quá nhanh, consumer xử lý không kịp. Khi đó, các message sẽ ùn ứ lại trong queue, có thể dẫn đến đầy bộ nhớ hoặc đĩa, và cuối cùng làm sập hệ thống queue. Khái niệm backpressure đề cập đến việc kiểm soát dòng chảy này, nhằm tránh quá tải cho hệ thống tiêu thụ. Bạn có thể hình dung backpressure như việc ở quán ăn, nếu quá nhiều khách hàng lấy số mà nhà bếp làm không kịp, cửa hàng tạm thời ngừng nhận thêm khách (hoặc yêu cầu khách xếp hàng chờ bên ngoài cửa nếu quá tải). Trong hệ thống phần mềm:
+
+- Một số message queue có cơ chế chặn producer khi queue đầy. Ví dụ: RabbitMQ có thể đặt ngưỡng bộ nhớ, nếu vượt quá thì sẽ không nhận thêm message mới (hoặc trả về lỗi cho producer) cho đến khi consumer xử lý bớt và giải phóng queue. 
+
+- Cơ chế khác là điều chỉnh tốc độ producer: ứng dụng gửi có thể được thiết kế để lắng nghe tín hiệu (như độ dài queue, hoặc phản hồi từ queue) để giảm tốc lại. Ví dụ: một service phát hiện queue đang chứa 10000 message chưa xử lý thì quyết định tạm ngừng gửi thêm việc mới hoặc giảm tần suất gửi. 
+
+- Nếu không kiểm soát được luồng gửi, một cách cuối là mở rộng hàng đợi hoặc consumer: ví dụ tự động scale-out thêm consumer để xử lý nhanh hơn, hoặc chấp nhận ghi queue ra đĩa (chậm nhưng lưu được nhiều) phòng trường hợp dồn ứ. Tuy nhiên, những biện pháp này chỉ giải quyết phần ngọn, quan trọng vẫn là thiết kế hệ thống để không dài hạn rơi vào trạng thái producer >> consumer quá lâu. 
+
+Từ khóa "backpressure" thường xuất hiện khi nói về các hệ thống xử lý stream hay message hiện đại (như Reactive Streams, Kafka). Trong phỏng vấn thiết kế hệ thống, bạn không nhất thiết phải đi quá sâu vào backpressure trừ khi được hỏi, nhưng hiểu đơn giản: backpressure = cách hệ thống phản ứng khi bị “ngộp” do tải. Bạn có thể đề cập rằng hệ thống hàng đợi của bạn sẽ cần cơ chế giới hạn hoặc thông báo khi queue quá đầy, ví dụ "Nếu số lượng message tồn đọng vượt X, tôi sẽ tạm dừng nhận thêm hoặc đưa ra cảnh báo để scaling". 
+
 6. <a id="ví-dụ-minh-họa-sử-dụng-message-queue"></a>**Ví dụ minh họa sử dụng Message Queue**
 
 7. <a id="gợi-ý-khi-phỏng-vấn-về-message-queue"></a>**Gợi ý khi phỏng vấn về Message Queue**
