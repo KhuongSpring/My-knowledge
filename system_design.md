@@ -896,13 +896,37 @@ Khi trả lời phỏng vấn về thiết kế hệ thống, nếu nhắc đế
 
 Câu trả lời trên thể hiện bạn hiểu vì sao dùng queue (giảm thời gian chờ, decouple), biết ví dụ cụ thể (đưa tác vụ gửi email, xử lý video vào queue), và còn ghi điểm khi nhắc đến việc mở rộng consumer hay cơ chế backpressure khi tải cao. Tất nhiên, hãy tùy tình huống mà trả lời cho phù hợp, nhưng luôn nhớ nhấn mạnh lợi ích cốt lõi: Message Queue giúp hệ thống linh hoạt, chịu tải tốt hơn bằng cách phi đồng bộ hóa các tác vụ.
 
-## <a id="idempotency-và-cơ-chế-khóa-trong-hệ-thống-phân-tán-1"></a>Idempotency và cơ chế khóa trong hệ thống phân tán
+## <a id="idempotency-và-cơ-chế-khóa-trong-hệ-thống-phân-tán-1"></a>[Idempotency](https://www.geeksforgeeks.org/javascript/what-is-an-idempotent-rest-api/) và cơ chế khóa trong hệ thống phân tán
+
+Idempotency (tính bất biến) là thuộc tính đảm bảo rằng thực hiện cùng một yêu cầu nhiều lần sẽ cho kết quả như chỉ thực hiện một lần. Điều này rất quan trọng trong hệ thống API và hệ thống phân tán vì giúp xử lý an toàn các trường hợp trùng lặp yêu cầu do lỗi mạng hoặc retry. Ví dụ, nếu gửi lệnh trừ 100k từ tài khoản ngân hàng nhiều lần, hệ thống idempotent sẽ chỉ trừ 100k một lần duy nhất. Nhờ đó, hệ thống tránh bị tác động phụ không mong muốn (không trừ tiền nhiều lần, không tạo đơn hàng lặp lại) và gia tăng độ tin cậy khi có lỗi kết nối.
+
+Ví dụ về idempotency: Các API GET, PUT, DELETE trong REST thường là idempotent - gọi nhiều lần không thay đổi kết quả cuối cùng. Ngược lại, POST hay PATCH mặc định không idempotent, vì gọi nhiều lần sẽ tạo ra nhiều bản ghi mới hoặc thay đổi tích lũy dần. Để khắc phục, chúng ta thường gắn kèm “idempotency key” (token duy nhất) để xác định yêu cầu, đảm bảo khi retry thì chỉ thực hiện một lần duy nhất (cập nhật đúng một đơn hàng hoặc giao dịch).
 
 ### Pessimistic Locking (Khóa bi quan)
 
+Pessimistic Locking là cơ chế giả định có xung đột dữ liệu và chủ động đặt khóa để bảo vệ tài nguyên. Biện pháp này khóa tài nguyên từ trước và giữ khóa trong suốt giao dịch, ngăn người khác đọc/ghi cho đến khi giao dịch hoàn thành.
+
+- Ưu điểm: Đảm bảo dữ liệu luôn nhất quán và an toàn, vì không ai có thể thay đổi trong lúc đang thao tác. Cách tiếp cận rõ ràng, đơn giản: ví dụ như trong giao dịch tài chính hay đặt chỗ quan trọng, ta chắc chắn tài nguyên chỉ một luồng truy cập. 
+
+- Nhược điểm: Dễ dẫn đến tình trạng chờ đợi và tắc nghẽn (các transaction khác phải chờ đến khi khóa được giải phóng). Nếu có nhiều giao dịch đồng thời cao, hiệu năng có thể giảm do lock bị giữ lâu, thậm chí gây deadlock.
+
+Ví dụ: Khi một giao dịch chuyển tiền được tiến hành, có thể dùng pessimistic lock trên tài khoản để bảo đảm hai giao dịch không trừ tiền cùng lúc (tránh âm tài khoản). Tương tự, nếu hai người cùng sửa hồ sơ người dùng (profile), pessimistic locking có thể khóa bản ghi profile để người khác phải đợi. Trong SQL, ví dụ dùng SELECT ... FOR UPDATE để đặt khóa trên hàng dữ liệu. Khi giải phóng khóa (commit hoặc rollback), các transaction khác mới truy cập được.
+
 ### Optimistic Locking (Khóa lạc quan)
 
+Optimistic Locking là cơ chế giả định ít có xung đột, cho phép nhiều giao dịch đọc/ghi song song và chỉ kiểm tra xung đột khi commit. Cụ thể, mỗi bản ghi có thêm trường version hoặc timestamp. Khi cập nhật, hệ thống sẽ so sánh version hiện tại với version khi đọc ra. Nếu trùng khớp, ghi thay đổi và tăng version; nếu không (người khác đã thay đổi trước đó), giao dịch sẽ rollback hoặc retry.
+
+- Ưu điểm: Không gây khóa cứng trên tài nguyên, tăng tính đồng thời và hiệu năng hệ thống khi xung đột hiếm. Thích hợp cho trường hợp nhiều client cùng đọc hoặc thực thi nhiều giao dịch nhỏ mà ít khi chạm trán (ví dụ hệ thống đọc nhiều, ghi ít). 
+
+- Nhược điểm: Khi xung đột xảy ra (ví dụ hai giao dịch sửa cùng lúc), phải rollback hoặc retry, tăng độ phức tạp trong code. Không đảm bảo chính xác 100% dữ liệu ngay tức thì, chỉ phát hiện khi commit. Không phù hợp khi dữ liệu bị truy xuất/ghi sửa rất cao.
+
+Ví dụ: Giả sử hai client cùng cập nhật thông tin người dùng. Với optimistic locking, mỗi client sẽ có version riêng khi đọc dữ liệu. Nếu client A commit thành công (version tăng lên), client B commit sẽ thất bại vì version cũ không khớp, buộc client B phải đọc lại và cập nhật lần nữa. Một ví dụ khác là tăng lượt xem trang: ta có thể không khóa truy vấn, chỉ cộng dồn và cập nhật cuối cùng, vì trường hợp xung đột không quan trọng. Trong code, ví dụ dùng câu lệnh UPDATE ... WHERE id = ? AND version = ?. Khi sử dụng: Optimistic lock phù hợp với hệ thống ít xung đột (ví dụ workload đọc nhiều, giao dịch ngắn). Trong khi đó, Pessimistic lock được ưu tiên trong tình huống xung đột cao hoặc giao dịch dài (chẳng hạn hệ thống ngân hàng, hoặc khi đảm bảo tính chính xác tối đa là cần thiết). 
+
 ### Khi nào dùng & lựa chọn
+
+Idempotency: Nên áp dụng cho mọi API trong hệ phân tán có khả năng retry hoặc có thể gửi yêu cầu trùng lặp. Các API tạo giao dịch (chuyển tiền, đặt đơn hàng) đặc biệt cần idempotency để tránh double-charge hay tạo đơn kép. Nói chung, nếu luồng xử lý có thể thất bại và client retry, ta cần thiết kế idempotency key cho yêu cầu. 
+
+● Locking: Hầu hết ứng dụng web thông thường chấp nhận được dirty read nên có thể dùng optimistic locking để giảm thiểu deadlock và tăng tốc độ. Ngược lại, với các giao dịch tài chính hoặc kịch bản đòi hỏi chính xác tuyệt đối, pessimistic locking được ưu tiên vì đảm bảo tính chính xác mặc dù tốn hiệu năng hơn. Trong các buổi phỏng vấn System Design, bạn nên nhắc đến việc chọn optimistic locking nếu mức độ đồng thời cao và khả năng xung đột thấp, và chọn pessimistic locking khi nhất quán dữ liệu là ưu tiên hàng đầu.
 
 ## <a id="các-phương-thức-giao-tiếp-và-thiết-kế-api-1"></a>Các phương thức giao tiếp và thiết kế API
 
