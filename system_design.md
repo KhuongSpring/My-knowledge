@@ -1075,7 +1075,23 @@ Nhìn chung, “lỗi hệ thống” có thể đến từ nhiều nguyên nhâ
 
 Ngoài các kỹ thuật trên, còn nhiều chiến lược nâng cao khác khi thiết kế hệ thống chịu lỗi (như cách ly lỗi bằng bulkhead pattern, cơ chế tự phục hồi - self-healing, v.v.). Tuy nhiên, những ý chính kể trên là nền tảng cơ bản cho một hệ thống đáng tin cậy. Tất nhiên, đánh đổi của việc thêm khả năng chịu lỗi là chi phí cao hơn và hệ thống phức tạp hơn. Nhiệm vụ của kỹ sư là cân bằng giữa mức độ chịu lỗi cần thiết và chi phí chấp nhận được. Nhưng nói chung, “cái giá của sự cố còn đắt hơn cái giá của phòng ngừa”: thà tốn chi phí xây dựng dự phòng còn hơn bị gọi dậy lúc 3 giờ sáng vì hệ thống sập hoàn toàn.
 
-### Phân biệt High Availability và Fault Tolerance
+### Phân biệt [High Availability và Fault Tolerance](https://www.geeksforgeeks.org/system-design/high-availability-vs-fault-tolerance-vs-disaster-recovery/)
+
+Hai khái niệm High Availability (HA) - độ sẵn sàng cao; và Fault Tolerance (FT) - chịu lỗi - thường được nhắc cùng nhau, nhưng chúng không hoàn toàn giống nhau. Cả hai đều nhằm mục tiêu giữ cho dịch vụ liên tục phục vụ, nhưng cách tiếp cận và chi phí khác nhau: 
+
+- High Availability (HA): Hệ thống sẵn sàng cao nghĩa là thiết kế để giảm thiểu tối đa thời gian downtime, nhưng chấp nhận thỉnh thoảng vẫn có gián đoạn nhỏ. Một hệ thống HA đảm bảo hầu hết thời gian hệ thống ở trạng thái phục vụ bình thường. Khi có sự cố, hệ thống HA sẽ khôi phục nhanh hoặc chuyển đổi nhanh sang thành phần dự phòng, nhưng thường vẫn có một chút thời gian ngắn ngừng phục vụ (ví dụ vài chục giây hoặc một phút). Ưu điểm của HA là dễ triển khai hơn và chi phí thấp hơn so với FT. Nhiều hệ thống sản xuất chọn HA vì sẵn sàng chấp nhận downtime rất ngắn để đổi lấy kiến trúc đơn giản hơn. 
+
+- Fault Tolerance (FT): Hệ thống chịu lỗi hướng tới mục tiêu không gián đoạn dịch vụ dù xảy ra bất kỳ lỗi nào. Điều này thường đạt được bằng cách nhân đôi toàn bộ hệ thống theo kiểu chạy song song: nếu một thành phần hỏng thì đã có thành phần khác đang chạy song song gánh ngay tức thì, người dùng hầu như không nhận thấy sự cố. Ví dụ, một cơ sở dữ liệu quan trọng chạy đồng thời hai máy chủ theo kiểu active-active (cả hai cùng xử lý, luôn đồng bộ dữ liệu); nếu một máy gặp trục trặc, máy còn lại đã có dữ liệu và phiên làm việc sẵn để tiếp tục phục vụ mà không cần thời gian chuyển đổi. Fault tolerance mang lại khả năng phục vụ liên tục nhất, nhưng đánh đổi là chi phí rất cao (vì phải nhân bản mọi thứ, tài nguyên dự phòng nhiều) và kiến trúc hệ thống phức tạp hơn đáng kể. Ngoài ra, không phải lúc nào FT cũng xử lý được mọi loại lỗi: ví dụ lỗi phần mềm chung (bug) thì nhân bản bao nhiêu cũng vẫn bị lỗi như nhau nếu không có cơ chế loại trừ.
+
+Một cách đơn giản để hình dung sự khác biệt: 
+
+- HA giống như nhà hàng có nhiều đầu bếp và nguyên liệu dự trữ. Nếu một đầu bếp nghỉ, nhà hàng vẫn mở cửa nhưng có thể phục vụ chậm hơn một chút - vẫn có downtime nhưng rất ít. 
+
+- FT giống như nhà hàng có hai hệ thống điện độc lập và máy phát dự phòng: nếu lưới điện mất thì máy phát ngay lập tức cung cấp điện, nhà hàng không hề tắt đèn một giây nào. Đổi lại, chi phí lắp hai hệ thống điện và bảo trì chúng rất đắt đỏ.
+
+Một ví dụ thực tế khác: máy bay thương mại hai động cơ được xem là có khả năng chịu lỗi, vì nếu một động cơ hỏng, máy bay vẫn có động cơ thứ hai để tiếp tục bay và hạ cánh an toàn. Ngược lại, trực thăng chỉ có một động cơ thì không thể chịu lỗi: hỏng động cơ là rớt, toàn hệ thống ngừng hoạt động. Tương tự, trong thiết kế hệ thống, ta phải quyết định đâu cần fault-tolerant tuyệt đối (như máy bay hai động cơ) và đâu chỉ cần highly available (chấp nhận ngừng ít phút). Thông thường, với các hệ thống thời gian thực đòi hỏi cao (như điều khiển không lưu, hệ thống tài chính...), yêu cầu chịu lỗi gần như tuyệt đối, còn nhiều ứng dụng web thông thường có thể chấp nhận HA với downtime vài chục giây đến vài phút khi failover. 
+
+Tóm lại: HA cho phép một tỷ lệ nhỏ downtime để đổi lấy sự đơn giản và tiết kiệm, còn FT nhằm loại bỏ hoàn toàn downtime nhưng tốn kém và phức tạp hơn nhiều. Kỹ sư hệ thống cần hiểu yêu cầu cụ thể để chọn giải pháp phù hợp, tránh “over-engineering” không cần thiết hoặc ngược lại thiết kế thiếu khi hệ thống đòi hỏi cao hơn. 
 
 ### Đánh giá độ tin cậy: Uptime, SLA, MTTR, MTBF
 
