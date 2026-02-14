@@ -1190,9 +1190,39 @@ Trong các hệ thống phân tán (microservices, cloud) hiện đại, bảo m
 
 - Cân nhắc hiệu năng - bảo mật: Mã hóa và kiểm tra đầu vào đều gây thêm overhead. Ví dụ, thiết lập TLS mạnh sẽ làm tăng chi phí xử lý (TLS handshake tiêu tốn CPU đáng kể). Việc kiểm tra và băm mật khẩu nhiều lần cũng tốn thời gian. Trình bày ví dụ trade-off rõ ràng cho thấy bạn biết ưu tiên theo tình huống. 
 
-### Monitoring và Observability
+### [Monitoring và Observability](https://www.geeksforgeeks.org/system-design/observability-vs-monitoring-in-distributed-systems/)
+
+Trong thiết kế hệ thống, bên cạnh việc xây dựng tính năng, chúng ta cần đảm bảo hệ thống hoạt động ổn định và dễ dàng khắc phục sự cố khi xảy ra. Đây là lúc Monitoring (giám sát) và Observability (khả năng quan sát hệ thống) phát huy vai trò quan trọng. Monitoring giúp ta theo dõi các chỉ số sức khỏe của hệ thống (như CPU, bộ nhớ, độ trễ, tỷ lệ lỗi, v.v.) và cảnh báo khi có điều bất thường. Observability đi xa hơn: nó cho phép ta hiểu rõ tại sao hệ thống gặp sự cố bằng cách quan sát các dữ liệu đầu ra của hệ thống (logs, metrics, traces). Chương này sẽ giải thích chi tiết Monitoring và Observability, sự khác biệt giữa chúng, các công cụ phổ biến, “ba trụ cột” của Observability (logs, metrics, traces), kèm ví dụ thực tế và cách trình bày chủ đề này trong buổi phỏng vấn thiết kế hệ thống.
 
 1. <a id="monitoring-là-gì"></a>**Monitoring là gì?**
+
+Monitoring (giám sát hệ thống) là quá trình thu thập, phân tích và sử dụng thông tin để theo dõi trạng thái hoạt động của hệ thống. Nói một cách đơn giản, monitoring là việc đo lường những gì ta đã biết và thiết lập cảnh báo khi có vấn đề xảy ra. Các hệ thống phần mềm thường có những chỉ số quan trọng cần được giám sát liên tục. Ví dụ về chỉ số cần giám sát: CPU usage, dung lượng bộ nhớ (RAM), dung lượng ổ đĩa, lưu lượng network, độ trễ (latency) của request, tỷ lệ yêu cầu xử lý (throughput), tỷ lệ lỗi (error rate), v.v. Đây đều là những thông số phản ánh “sức khỏe” của hệ thống tại mỗi thời điểm. Với monitoring, ta theo dõi các chỉ số này thông qua biểu đồ trực quan và đặt ngưỡng cảnh báo.
+
+Đặc điểm của Monitoring: 
+
+- Định sẵn chỉ số cố định: Monitoring tập trung vào những chỉ số cố định đã xác định trước, ví dụ CPU, RAM, ổ cứng, số lượng request, tỷ lệ lỗi,... Ta thường biết trước mình muốn đo lường điều gì. 
+
+- Dựa trên ngưỡng cảnh báo: Ta đặt ra ngưỡng cho các chỉ số. Khi một chỉ số vượt quá giới hạn định sẵn, hệ thống monitoring sẽ kích hoạt cảnh báo (alert). Ví dụ: nếu CPU sử dụng vượt 90% hoặc nếu tỷ lệ lỗi 5xx vượt 1%, hệ thống sẽ gửi cảnh báo. 
+
+- Trả lời câu hỏi “Điều gì đang xảy ra?”: Monitoring giúp trả lời những câu hỏi cơ bản như “Hệ thống có đang hoạt động bình thường không?” và “Có vấn đề gì đang xảy ra không?”. Nó cho ta biết có hay không có vấn đề tại thời điểm hiện tại. 
+
+- Tính thụ động: Monitoring thường mang tính phản ứng: tức là nó thông báo khi sự cố đã xảy ra hoặc chỉ ra dấu hiệu bất thường. Điều này rất hữu ích để phát hiện nhanh vấn đề, nhưng hạn chế ở chỗ monitoring truyền thống không luôn cho biết nguyên nhân gốc rễ.
+
+Ví dụ đơn giản về Monitoring: Bạn thiết lập hệ thống giám sát để theo dõi tỷ lệ lỗi HTTP 500 của dịch vụ web. Bạn quy định rằng nếu hơn 1% tổng số request trả về mã lỗi 500 trong một khoảng thời gian nhất định, thì đó là bất thường. Khi triển khai monitoring, bạn sẽ có biểu đồ hiển thị % lỗi 500 theo thời gian. Nếu đường biểu đồ vượt mức 1%, hệ thống sẽ gửi cảnh báo qua email hoặc Slack cho đội kỹ thuật. Nhờ đó, bạn sớm biết “Điều gì đang xảy ra”: cụ thể là tỷ lệ lỗi đang tăng cao, và bắt đầu tiến hành xử lý. 
+
+Các công cụ Monitoring phổ biến: Ngày nay có nhiều công cụ giúp triển khai monitoring một cách hiệu quả, ví dụ:
+
+- [Prometheus](https://prometheus.io/docs/introduction/overview/): Hệ thống mã nguồn mở thu thập metrics (số liệu đo lường) và hỗ trợ cảnh báo. Prometheus rất phổ biến để lưu trữ chuỗi thời gian (time-series) các chỉ số như CPU, bộ nhớ, độ trễ, v.v., và trigger cảnh báo dựa trên ngưỡng đặt ra. 
+
+- [Grafana](https://grafana.com/): Nền tảng mã nguồn mở để trực quan hóa dữ liệu. Grafana thường được sử dụng cùng Prometheus (và các nguồn dữ liệu khác) để vẽ biểu đồ, dashboard hiển thị tình trạng hệ thống. Bạn có thể tạo bảng điều khiển realtime về lưu lượng người dùng, lỗi, v.v. 
+
+- [Nagios](https://www.nagios.org/)/[Zabbix](https://www.zabbix.com/): Các công cụ monitoring truyền thống, mạnh trong việc giám sát hạ tầng (server, network) với cảnh báo cơ bản. Chúng đã tồn tại lâu đời và thường dùng cho theo dõi tài nguyên hệ thống. 
+
+- [Datadog](https://www.datadoghq.com/): Dịch vụ SaaS giám sát toàn diện, tích hợp nhiều tính năng (theo dõi metrics, logs, traces trong một nền tảng). Datadog có thể thu thập dữ liệu từ nhiều nguồn và đưa ra cảnh báo thông minh, phù hợp cho doanh nghiệp muốn một giải pháp tất-cả-trong-một. 
+
+- [New Relic](https://newrelic.com/): Nền tảng APM (Application Performance Monitoring) và quan sát hệ thống. New Relic giúp theo dõi hiệu năng ứng dụng (thời gian phản hồi, truy vấn database, v.v.) và cũng cung cấp khả năng thu thập metric, lỗi, thậm chí trace của ứng dụng.
+
+(Lưu ý: Prometheus và Grafana là giải pháp phổ biến trong cộng đồng mã nguồn mở; Datadog và New Relic là giải pháp thương mại được cung cấp dưới dạng dịch vụ.) Tóm lại, Monitoring là việc giám sát các thông số đã biết của hệ thống và cảnh báo khi những thông số đó vượt giới hạn bình thường. Nó giống như việc bạn gắn các cảm biến và đồng hồ đo cho hệ thống: bất cứ khi nào nhiệt độ quá nóng hoặc áp suất quá cao, chuông báo động sẽ vang lên.
 
 2. <a id="observability-là-gì"></a>**Observability là gì?**
 
