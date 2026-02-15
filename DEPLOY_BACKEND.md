@@ -143,8 +143,47 @@ Về phía Tài khoản & Hạ tầng (Cloud Services):
 
 ## Chương 2: Đóng gói ứng dụng (Containerization)
 
+Đóng gói (Containerization) là bước chuyển giao mã nguồn từ dạng "code thô" thành một khối (Image) có thể tự chạy độc lập ở bất kỳ đâu. Phần này sử dụng Docker làm công cụ cốt lõi.
+
 ### Chuẩn bị ứng dụng để đóng gói
-*(Ví dụ: Cấu hình biến môi trường, build ra file thực thi như `.jar` đối với Spring Boot)*
+
+Trước khi đưa ứng dụng vào Docker, mã nguồn cần được cấu hình lại để tách biệt giữa môi trường phát triển (Local) và môi trường thực tế (Production).
+
+1. Thiết lập dự án cơ bản
+
+Tạo nhiều file cấu hình (Profiles) trong thư mục `src/main/resources`:
+
+- `application.yml` / `application.properties` (Cấu hình chung mặc định).
+
+- `application-dev.yml` / `application-dev.properties` (Dùng cho local, kết nối database ở localhost).
+
+- `application-prod.yml` / `application-prod.properties` (Dùng cho server thực tế).
+
+2. Thiết lập biến môi trường (Environment Variables) cho từng file
+
+Tuyệt đối không hardcode (viết cứng) thông tin nhạy cảm như `username`, `password` của Database hay `Secret Key` trực tiếp vào mã nguồn hoặc file `application.yml` rồi push lên Git. Thay vào đó nên sử dụng biến môi trường và ứng dụng sẽ đọc các cấu hình này từ hệ điều hành (hoặc từ Docker) khi khởi chạy.
+
+- `application.yml` / `application.properties`: Đây là file sẽ cấu hình các thông số chung cho toàn bộ dự án như: server port, enable các service bên ngoài, các biến chung mặc định,...
+
+- `application-dev.yml` / `application-dev.properties`: Đây là file dùng để cấu hình cho việc lập trình trên chính máy của dev. Ở đây các đường dẫn thường chứa `localhost` và sẽ sử dụng file .env để inject các cấu hình vào biến môi trường.
+
+- `application-prod.yml` / `application-prod.properties`: Cuối cùng là file chứa các cấu hình hoàn chỉnh cho một production sẵn sàng chạy trên server. Thường thì file này sẽ lấy cấu hình từ các biến môi trường được define ở `docker-compose.yml`.
+
+Ví dụ: `${TÊN_BIẾN:giá_trị_mặc_định}`
+
+```properties
+spring.datasource.url=jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:mydb}
+spring.datasource.username=${DB_USER:root}
+spring.datasource.password=${DB_PASS:}
+```
+
+3. Đóng gói ứng dụng thành file thực thi `.jar` bằng Maven:
+
+  ```bash
+  mvn clean package -DskipTests
+  ```
+
+Kết quả: File `.jar` sẽ được tạo ra trong thư mục `target/`.
 
 ### Xây dựng Dockerfile
 *(Các bước viết file `Dockerfile` để tạo Image)*
