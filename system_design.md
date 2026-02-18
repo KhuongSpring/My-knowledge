@@ -1270,4 +1270,20 @@ Công cụ Observability phổ biến: Để xây dựng observability, chúng t
 
 3. <a id="trình-bày-về-monitoring-và-observability-trong-buổi-phỏng-vấn"></a>**Trình bày về Monitoring và Observability trong buổi phỏng vấn**
 
+Khi phỏng vấn thiết kế hệ thống (System Design), ứng viên thường không chỉ nói về kiến trúc và tính năng, mà còn cần đề cập đến việc vận hành và giám sát hệ thống sau khi xây dựng. Nhà tuyển dụng muốn biết liệu bạn có suy nghĩ đến độ tin cậy (reliability) và khả năng khắc phục sự cố (troubleshooting) cho hệ thống của mình hay không. Đây là nơi bạn nên khéo léo trình bày về Monitoring và Observability. Dưới đây là một số gợi ý: 
+
+- Nhấn mạnh tầm quan trọng: Hãy chủ động đề cập rằng bất kỳ hệ thống lớn nào cũng cần được giám sát và có khả năng quan sát tốt. Ví dụ: “Song song với thiết kế tính năng, em sẽ thiết kế hệ thống giám sát để đảm bảo service luôn khỏe mạnh và nhanh chóng phát hiện sự cố.” Câu nói này cho thấy bạn hiểu vận hành thực tế quan trọng như thế nào. 
+
+- Đề cập các metrics quan trọng: Trong thiết kế của bạn, hãy nêu ra một vài chỉ số chính (KPIs) mà bạn sẽ theo dõi. Ví dụ: “Đối với hệ thống này, em sẽ theo dõi các metric như số lượng yêu cầu mỗi giây, thời gian phản hồi trung bình, tỷ lệ lỗi của mỗi service, cũng như mức sử dụng CPU và bộ nhớ của các máy chủ.” Việc cụ thể hóa các metric cho thấy bạn hiểu rõ hệ thống cần đo lường gì để đảm bảo hiệu năng. 
+
+- Nói về hệ thống cảnh báo: Bạn nên trình bày rằng mình sẽ đặt ngưỡng và cấu hình cảnh báo (alerts) cho các tình huống bất thường. Chẳng hạn: “Nếu lưu lượng người dùng tăng đột biến dẫn đến CPU > 80% kéo dài hoặc tỷ lệ lỗi vượt 2%, hệ thống monitoring sẽ gửi cảnh báo qua email/SMS để đội kỹ thuật kịp thời xử lý.” Điều này chứng tỏ bạn biết cách phản ứng nhanh với sự cố. 
+
+- Giới thiệu về Observability và debug: Hãy thể hiện rằng thiết kế của bạn có tính observable - tức là dễ debug khi có vấn đề. Bạn có thể nói: “Em sẽ thêm cơ chế logging chi tiết cho các dịch vụ (như log mỗi giao dịch quan trọng, log error với stack trace đầy đủ). Đồng thời, tích hợp distributed tracing để theo dõi một request đi qua nhiều service, giúp việc xác định nút thắt (bottleneck) hoặc điểm lỗi dễ dàng hơn.” Điều này cho thấy bạn chuẩn bị cho tình huống xấu và có phương án điều tra nguyên nhân. 
+
+- Nhắc đến công cụ cụ thể (một cách tự nhiên): Nếu phù hợp, hãy đề cập một vài công cụ phổ biến mà bạn quen thuộc để gây ấn tượng. Ví dụ: “Phần metrics và alert em có thể dùng Prometheus kết hợp Grafana để lưu trữ và vẽ biểu đồ. Logs của các service em sẽ đưa về hệ thống tập trung (chẳng hạn ElasticSearch/Kibana) để dễ tìm kiếm. Còn trace thì dùng Jaeger để theo dõi request giữa các service.” Việc liệt kê công cụ cho thấy bạn có kinh nghiệm thực tế. Tuy nhiên, đừng lạm dụng tên tool nếu bạn không chắc - quan trọng hơn là mô tả được chức năng và mục đích của chúng. 
+
+- Thể hiện tư duy cân bằng: Bạn có thể nhấn mạnh rằng Monitoring và Observability đi đôi với nhau. Ví dụ: “Em hiểu rằng monitoring giúp mình biết sớm khi có sự cố, còn observability (nhờ log, metric, trace chi tiết) giúp mình điều tra nhanh nguyên nhân. Em sẽ thiết kế hệ thống đảm bảo cả hai khía cạnh này để giảm thiểu thời gian downtime.” Câu này vừa tóm tắt đúng tinh thần, vừa thể hiện bạn có cái nhìn toàn diện. 
+
+Cuối cùng, hãy nhớ trình bày một cách tự tin nhưng khiêm tốn. Nhà tuyển dụng không nhất thiết đòi hỏi bạn phải thuộc tên mọi công cụ, nhưng họ muốn thấy bạn ý thức được tầm quan trọng của việc giám sát và khả năng quan sát hệ thống. Bằng cách đưa Monitoring và Observability vào bài thiết kế của mình một cách hợp lý, bạn sẽ ghi điểm rằng mình nghĩ xa hơn vòng đời phát triển (development) - tức là quan tâm đến vận hành (operations) và độ tin cậy (reliability) của hệ thống về lâu dài.
+
 ## <a id="lời-kết-1"></a>Lời kết
