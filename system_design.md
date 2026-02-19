@@ -1226,6 +1226,48 @@ Các công cụ Monitoring phổ biến: Ngày nay có nhiều công cụ giúp 
 
 2. <a id="observability-là-gì"></a>**Observability là gì?**
 
+Observability (khả năng quan sát hệ thống) là khả năng hiểu được trạng thái bên trong của một hệ thống thông qua các dữ liệu mà hệ thống đó tạo ra. Nói cách khác, một hệ thống được coi là “observable” (có thể quan sát) khi chúng ta có đủ thông tin từ hệ thống (như log, metric, trace) để suy ra điều gì đang diễn ra bên trong nó. Thuật ngữ Observability bắt nguồn từ lý thuyết điều khiển (control theory), với ý nghĩa là từ các đầu ra có thể quan sát, ta suy luận ra trạng thái nội tại của hệ thống. 
+
+Mục tiêu của Observability: giúp trả lời những câu hỏi “Tại sao điều này xảy ra?” thay vì chỉ “Chuyện gì đang xảy ra?”. Observability hướng đến việc cho phép bạn khám phá linh hoạt các vấn đề trong hệ thống, kể cả những vấn đề chưa từng được biết đến trước đó. Khi hệ thống có observability tốt, bạn có thể đặt ra những câu hỏi mới về hành vi của nó mà không cần phải dự đoán trước mọi loại sự cố. 
+
+Ba trụ cột chính của Observability: Để quan sát một hệ thống phức tạp, người ta thu thập ba loại dữ liệu chính - thường được gọi là “3 trụ cột của observability”:
+
+- Logs (Nhật ký): Logs là các bản ghi sự kiện trong hệ thống. Mỗi khi hệ thống thực hiện một hành động (ví dụ: người dùng đăng nhập, gọi API, lỗi xảy ra…), hệ thống có thể ghi lại một dòng log mô tả sự kiện đó. Logs thường có thông tin chi tiết như thời gian, thành phần nào log, mức độ (info, warning, error), và thông điệp lỗi hoặc ngữ cảnh sự kiện. Ví dụ: Khi xảy ra lỗi NullPointerException trong ứng dụng, log có thể ghi lại stack trace và thông tin request gây ra lỗi, giúp kỹ sư hiểu được lỗi xảy ra ở đâu trong mã. Logs cho phép ta “lần theo dấu vết” các sự kiện đã xảy ra trong quá khứ. Trong Observability, logs là dữ liệu cực kỳ quan trọng để điều tra sự cố, vì chúng cho biết chuyện gì đã diễn ra trước và trong khi lỗi xảy ra. 
+
+- Metrics (Chỉ số định lượng): Metrics là các số liệu định lượng đo đạc được theo thời gian. Thông thường metrics được lưu dưới dạng chuỗi thời gian (time-series) - tức là các cặp giá trị và thời điểm. Ví dụ về metric: số lượng request mỗi giây, thời gian đáp ứng trung bình của API, CPU usage %, memory sử dụng (MB), v.v. Metrics cho ta cái nhìn tổng quan về xu hướng và mức độ hoạt động của hệ thống. Chúng thường được biểu diễn bằng biểu đồ để dễ quan sát biến động. Ví dụ: Bạn có metric về độ trễ trung bình của dịch vụ thanh toán. Bình thường độ trễ ~100ms, nhưng bạn thấy metric này tăng đột biến lên 500ms vào lúc 10:00 sáng. Điều này báo hiệu rằng có thể có vấn đề về hiệu năng - và bạn sẽ cần tìm hiểu sâu hơn (qua log, trace) để biết nguyên nhân. Metrics thường được dùng để phát hiện bất thường nhanh chóng (như spike hoặc drop trong biểu đồ) và thiết lập cảnh báo. Tuy nhiên, metric thường chỉ cho biết rằng có vấn đề chứ không giải thích chi tiết vì sao có vấn đề. 
+
+- Traces (Dấu vết): Trace là dữ liệu theo dõi đường đi của một yêu cầu (request) xuyên qua các thành phần của hệ thống. Trong hệ thống phân tán (ví dụ kiến trúc microservices), một yêu cầu người dùng có thể đi qua nhiều service khác nhau. Distributed tracing (theo dõi phân tán) sẽ gắn một ID duy nhất cho yêu cầu đó và ghi lại các span (đoạn) tương ứng với từng dịch vụ hoặc thành phần xử lý yêu cầu. Trace cho phép ta tái hiện lại toàn bộ hành trình của một yêu cầu trong hệ thống, giống như ta xâu chuỗi các sự kiện liên quan với nhau. Ví dụ: Người dùng thực hiện giao dịch thanh toán trên ứng dụng. Yêu cầu này đi qua các service: Service A (cổng API) gọi Service B (xử lý đơn hàng), rồi Service B gọi Service C (xử lý thanh toán thẻ tín dụng). Nếu giao dịch bị lỗi hoặc chậm, trace sẽ cho ta biết bước nào gặp trục trặc. Bạn có thể phát hiện rằng thời gian xử lý ở Service C chiếm phần lớn tổng thời gian, và nguyên nhân gốc rễ là Service C bị timeout khi gọi API của bên thứ ba. Nhờ traces, ta trả lời được câu hỏi “Tại sao yêu cầu chậm/lỗi?” một cách cụ thể, đặc biệt hữu ích trong hệ thống phức tạp.
+
+Khi kết hợp đầy đủ logs, metrics và traces, chúng ta đạt được observability tốt. Ba loại dữ liệu này bổ sung cho nhau: metrics giúp phát hiện vấn đề và đo lường mức độ ảnh hưởng, logs cung cấp ngữ cảnh chi tiết và lịch sử sự kiện, còn traces cho thấy bức tranh luồng sự kiện end-to-end để tìm nguyên nhân trong kiến trúc phân tán. Nhờ vậy, Observability cung cấp một cái nhìn toàn diện về hệ thống. 
+
+Khác biệt giữa Monitoring và Observability: Monitoring và Observability thường được nhắc chung, nhưng chúng không phải hai khái niệm đối lập mà bổ trợ cho nhau. Hiểu đơn giản:
+
+- Monitoring cho biết điều gì đang diễn ra và có điều gì bất thường không. Còn Observability giúp hiểu tại sao điều đó diễn ra. 
+
+- Monitoring giống như hệ thống báo động khi có sự cố, còn Observability giống như bộ dụng cụ điều tra giúp tìm ra nguyên nhân sự cố đó. 
+
+- Monitoring thường dựa trên các chỉ số và kịch bản đã biết trước (ví dụ đặt ngưỡng CPU, RAM, lỗi,…), còn Observability cho phép đặt câu hỏi về những tình huống chưa từng biết (nhờ dữ liệu chi tiết như log, trace). 
+
+- Có thể nói Monitoring là một phần của Observability - bạn cần có monitoring (đo lường, cảnh báo) để hệ thống vận hành ổn, nhưng để hiểu sâu và giải quyết triệt để các vấn đề phức tạp, bạn cần observability tốt.
+
+Một cách hình tượng, hãy hình dung Monitoring như những đèn cảnh báo trên xe hơi: nếu động cơ quá nhiệt hoặc dầu sắp cạn, đèn sẽ bật sáng để cảnh báo bạn có vấn đề. Còn Observability giống như việc bạn có thể mở nắp capo xe, cắm máy chẩn đoán vào để đọc mã lỗi và kiểm tra từng bộ phận bên trong: nhờ đó bạn hiểu rõ vì sao đèn cảnh báo bật sáng. Trong hệ thống phần mềm, monitoring cảnh báo chúng ta khi hiệu năng hoặc độ ổn định vượt khỏi giới hạn, còn observability giúp chúng ta đào sâu vào dữ liệu log, metric, trace để tìm ra gốc rễ vấn đề và hiểu rõ hành vi hệ thống trong từng hoàn cảnh. 
+
+Thực tế, trong các hệ thống hiện đại (đặc biệt là microservices và cloud), Observability ngày càng được đề cao. Observability cung cấp cái nhìn toàn diện về hành vi và hiệu suất hệ thống, giúp đội ngũ kỹ thuật nhanh chóng phát hiện, chẩn đoán và giải quyết vấn đề, đồng thời cải thiện hiệu năng vận hành. Nói cách khác, observability không chỉ phát hiện sự cố nhanh chóng mà còn hỗ trợ phân tích nguyên nhân sâu xa, điều này đặc biệt quan trọng khi hệ thống ngày càng phức tạp và có nhiều “điểm mù” nếu chỉ dùng monitoring truyền thống. 
+
+Công cụ Observability phổ biến: Để xây dựng observability, chúng ta thường kết hợp nhiều công cụ cho logs, metrics, và traces:
+
+- ELK Stack ([Elasticsearch](https://www.elastic.co/elasticsearch), [Logstash](https://www.elastic.co/logstash), [Kibana](https://www.elastic.co/kibana)): Bộ ba công cụ mã nguồn mở hỗ trợ thu thập và phân tích log. Logstash thu thập và xử lý log từ các nguồn, Elasticsearch lưu trữ và cho phép tìm kiếm mạnh mẽ, Kibana dùng để trực quan hóa (dashboard, biểu đồ) và truy vấn log. ELK stack thường được dùng để xây dựng hệ thống centralized logging (nhật ký tập trung), rất hữu ích cho observability vì giúp bạn tìm kiếm lỗi và sự kiện xuyên suốt các dịch vụ. 
+
+- [Jaeger](https://www.jaegertracing.io/), [Zipkin](https://zipkin.io/): Các công cụ mã nguồn mở để triển khai distributed tracing. Chúng thu thập các trace từ hệ thống microservices và cung cấp giao diện để xem xét đường đi của từng request qua các dịch vụ. Nhờ Jaeger hoặc Zipkin, kỹ sư có thể dễ dàng thấy được service nào gây chậm trễ hoặc lỗi trong một giao dịch phức tạp. 
+
+- [OpenTelemetry](https://opentelemetry.io/): Đây không hẳn là một sản phẩm riêng lẻ mà là một framework chuẩn mở để thu thập dữ liệu telemetry (bao gồm metric, log, trace) từ ứng dụng. OpenTelemetry cung cấp các thư viện cho nhiều ngôn ngữ để instrument (gắn mã theo dõi) vào ứng dụng, sau đó có thể xuất dữ liệu này sang các hệ thống như Prometheus, Jaeger, v.v. Việc nắm được OpenTelemetry giúp bạn thiết kế một hệ thống dễ quan sát ngay từ khâu viết mã. 
+
+- [Honeycomb](https://www.honeycomb.io/), [Lightstep](https://docs.lightstep.com/): Nền tảng thương mại tập trung vào observability. Các dịch vụ này cho phép lưu trữ và phân tích lượng lớn dữ liệu log/trace/metric, cung cấp truy vấn linh hoạt (thậm chí realtime), giúp tìm kiếm nguyên nhân sự cố nhanh chóng. Chúng được thiết kế cho hệ thống phân tán phức tạp, nơi việc debug thủ công trở nên khó khăn. 
+
+- Datadog, New Relic: Như đã nhắc ở phần monitoring, các nền tảng này không chỉ làm monitoring mà còn hỗ trợ observability toàn diện. Ví dụ, Datadog có tính năng APM cho phép theo dõi traces và hiển thị trực quan các dependency; New Relic cũng thu thập log và metric, cung cấp khả năng phân tích tất cả trong một giao diện. 
+
+> (Ghi chú: Danh sách trên chỉ vài ví dụ tiêu biểu. Ngoài ra còn nhiều công cụ khác trong hệ sinh thái observability.)
+
 3. <a id="trình-bày-về-monitoring-và-observability-trong-buổi-phỏng-vấn"></a>**Trình bày về Monitoring và Observability trong buổi phỏng vấn**
 
 ## <a id="lời-kết-1"></a>Lời kết
