@@ -76,6 +76,8 @@ Sau khi hoàn thành các bước trong tài liệu này, hệ thống backend p
 
 - Tính đóng gói và di động (Portability): Tận dụng tối đa công nghệ Docker để đóng gói ứng dụng, đảm bảo tuyệt đối rằng "code chạy được trên máy developer thì cũng sẽ chạy được trên server", loại bỏ rủi ro do xung đột thư viện hay phiên bản hệ điều hành.
 
+---
+
 ### Kiến trúc triển khai (Deployment Architecture)
 
 Mô hình triển khai này sử dụng cấu trúc đa tầng để tối ưu hóa giữa hiệu năng và bảo mật. Dưới đây là sơ đồ luồng dữ liệu (Request Flow) từ người dùng đến ứng dụng.
@@ -118,6 +120,8 @@ Giải thích vai trò các thành phần trong luồng:
 4. Nginx (Web Server & Reverse Proxy): Đứng ở tầng hệ điều hành của EC2. Nginx nhận request từ cổng 80/443 và thực hiện điều phối dữ liệu (proxy_pass) vào port nội bộ của Docker Container đang chạy backend.
 
 5. Docker Container (Backend Layer): Nơi chứa mã nguồn ứng dụng (ví dụ: file .jar của Spring Boot) đã được đóng gói hoàn chỉnh. Ứng dụng xử lý logic và trả kết quả ngược lại theo đúng quy trình trên.
+
+---
 
 ### Yêu cầu tiên quyết (Prerequisites)
 
@@ -185,8 +189,71 @@ spring.datasource.password=${DB_PASS:}
 
 Kết quả: File `.jar` sẽ được tạo ra trong thư mục `target/`.
 
+---
+
 ### Xây dựng Dockerfile
-*(Các bước viết file `Dockerfile` để tạo Image)*
+
+`Dockerfile` là một bản hướng dẫn (recipe) để Docker biết cách xây dựng Image cho ứng dụng của bạn.
+
+> Tài liệu tham khảo: [Spring Boot with Docker](https://spring.io/guides/gs/spring-boot-docker)
+
+Hướng dẫn và Lưu ý thường gặp:
+
+- Thứ tự Layer: Docker build image theo từng lớp (layer) từ trên xuống. Lệnh nào ít thay đổi (như tải thư viện) nên để ở trên, lệnh nào hay thay đổi (như copy mã nguồn) nên để ở dưới để tận dụng Cache, giúp build nhanh hơn.
+
+- Lưu ý: Không nên dùng các base image quá nặng (như ubuntu ~70MB) để chạy Java. Hãy dùng các bản rút gọn.
+
+1. Thiết lập cơ bản
+
+Một Dockerfile tiêu chuẩn nằm ở thư mục gốc của dự án sau khi bạn đã tự build ra file `.jar`:
+
+```Dockerfile
+# Sử dụng base image có sẵn Java 21
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+
+# Thư mục làm việc bên trong container
+WORKDIR /app
+
+# Copy file jar từ local vào container
+COPY target/*.jar app.jar
+
+# Mở port (chỉ mang tính document, thực tế map port lúc chạy, thường mình sẽ để 8081)
+EXPOSE 8080
+
+# Lệnh khởi chạy ứng dụng
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+2. Tối ưu và nâng cao
+
+Phương pháp cơ bản trên yêu cầu máy tính/server của bạn phải cài sẵn Maven để build ra file `.jar` trước. Với Multi-stage build, ta dùng chính Docker để build code, sau đó chỉ lấy file `.jar` kết quả bỏ sang một Image siêu nhẹ để chạy. Cực kỳ hữu ích cho CI/CD!
+
+```Dockerfile
+# Lớp 1: Build mã nguồn (Có chứa Maven)
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+WORKDIR /app
+
+# Sao chép file pom chứa cấu hình và thư viện dự án
+COPY pom.xml . 
+
+# Tải trước thư viện để cache (nếu pom.xml không đổi)
+RUN mvn dependency:go-offline
+COPY src ./src
+
+# Build ra file jar
+RUN mvn clean package -DskipTests
+
+# Lớp 2: Chạy ứng dụng (Chỉ chứa JRE siêu nhẹ)
+FROM openjdk:21-ea-21-jdk-slim
+WORKDIR /app
+
+# Lấy file jar từ Lớp 1 (builder) sang
+COPY --from=builder /app/target/*.jar app.jar
+EXPOSE 8081
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+Nên sử dụng cách này sẽ tạo được Image cuối cùng rất nhẹ.
 
 ### Quản lý đa dịch vụ với Docker Compose
 *(Cấu hình `docker-compose.yml` để chạy nhiều service cùng lúc như Backend và Database)*
