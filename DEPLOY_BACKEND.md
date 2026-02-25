@@ -255,8 +255,96 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 Nên sử dụng cách này sẽ tạo được Image cuối cùng rất nhẹ.
 
+---
+
 ### Quản lý đa dịch vụ với Docker Compose
-*(Cấu hình `docker-compose.yml` để chạy nhiều service cùng lúc như Backend và Database)*
+
+Một backend thực tế hiếm khi đứng một mình, nó cần Database, Redis, Kafka,... để chạy đồng thời trong dự án. Ngoài ra nếu xây dựng hệ thống Microservices thì sẽ cần chạy các service gateway, cloud và các service khác liên quan chạy đồng thời. `docker-compose.yml` giúp khởi chạy toàn bộ cụm này bằng 1 câu lệnh.
+
+> Tài liệu tham khảo: [Docker Compose File Reference](https://docs.docker.com/reference/compose-file/)
+
+1. Thiết lập cơ bản
+
+File `docker-compose.yml` định nghĩa 2 service: app và database.
+
+```YAML
+version: '3.9'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    # Nếu bạn muốn ứng dụng chạy local của mình có thể kết nối một service (ví dụ là database) đang chạy trên docker thì có thể dùng mapping port
+    # Ở đây mình sử dụng 3307 để phân biệt với cổng mặc định của MySQL là 3306, từ đó ứng dụng bên ngoài có thể kết nối chính xác đến database đang chạy ở trong docker. Tương tự với các service khác. Còn 3306 (Internal) nghĩa là port dùng để các container khác trong cùng một file docker-compose.yml kết nối.
+    ports:
+      - "3307:3306" # External:Internal
+    # Môi trường sẽ sử dụng biến được lấy ở trong file môi trường của dự án.
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+  backend-app:
+    build: .
+    container_name: my-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env # Đọc cấu hình từ file .env ẩn
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    # Trước khi ứng dụng được chạy ta cần đảm bảo container database đã được chạy, từ đó tránh việc database chưa chạy xong mà ứng dụng đã query tới, gây lỗi ứng dụng.
+    depends_on:
+      - mysql-db
+```
+
+2. Tối ưu và nâng cao
+
+Bổ sung **Volumes** (để không mất dữ liệu DB khi xóa container) và thêm **Healthcheck** (để Backend đợi DB khởi động xong mới chạy).
+
+```YAML
+version: '3.9'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - db_data:/var/lib/mysql # Lưu trữ dữ liệu vĩnh viễn
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - my_network
+
+  backend-app:
+    build: .
+    container_name: my-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env # Đọc cấu hình từ file .env ẩn
+    depends_on:
+      mysql-db:
+        condition: service_healthy # Đợi DB thực sự ping được mới chạy App
+    networks:
+      - my_network
+
+volumes:
+  db_data:
+
+# Network dùng để các container có thể giao tiếp qua lại với nhau
+networks:
+  my_network:
+    driver: bridge
+```
 
 ### Lưu trữ Image trên Container Registry
 *(Lệnh `docker push` lên Docker Hub)*
