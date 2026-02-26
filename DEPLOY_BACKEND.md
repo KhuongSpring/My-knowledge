@@ -346,8 +346,68 @@ networks:
     driver: bridge
 ```
 
+---
+
 ### Lưu trữ Image trên Container Registry
-*(Lệnh `docker push` lên Docker Hub)*
+
+Khi Image đã được đóng gói thành công ở máy local, ta cần đưa nó lên một kho lưu trữ đám mây (Registry) để lát nữa máy chủ AWS EC2 có thể kéo (Pull) về.
+
+> Tài liệu tham khảo: [Docker Hub Quickstart](https://docs.docker.com/docker-hub/quickstart/)
+
+Hướng dẫn chi tiết 2 cách thực hiện:
+
+1. Sử dụng Docker Desktop
+
+Cách này rất tiện lợi khi bạn đang làm việc trên máy tính cá nhân (Windows/macOS) và muốn thao tác nhanh bằng chuột.
+
+- Khởi động ứng dụng **Docker Desktop** và đảm bảo bạn đã đăng nhập tài khoản Docker Hub ở góc trên bên phải giao diện.
+- Điều hướng sang tab **Images** ở thanh menu bên trái.
+- Trong danh sách "Local", tìm đến Image bạn vừa build (ví dụ: `my-backend-app`).
+- Nhấn vào biểu tượng **dấu ba chấm** (More Options) ở cuối dòng của Image đó -> Chọn **Push to Hub**.
+- Một cửa sổ hiện ra, bạn điền **Namespace** (chính là username Docker Hub của bạn) và **Repository** (tên kho chứa). Bổ sung thêm tag (ví dụ: `v1.0`).
+- Nhấn **Push** và theo dõi thanh tiến trình chạy đến khi hoàn tất.
+
+2. Sử dụng Docker CLI (Dòng lệnh - Khuyên dùng)
+
+Dù dùng giao diện rất trực quan, bạn bắt buộc phải thành thạo cách dùng dòng lệnh. Lý do là vì máy chủ VPS (Ubuntu/EC2) hay các hệ thống tự động cấu hình (CI/CD) hoàn toàn không có giao diện chuột để bạn click.
+
+- Đăng nhập (hoặc đăng kí) tài khoản trên [Docker Hub](https://hub.docker.com/)
+
+- Đăng nhập Docker trên máy tính: Mở Terminal/CMD (Ở thư mục dự án có chứa Dockerfile) và gõ lệnh sau. Hệ thống sẽ yêu cầu bạn nhập Username và Password (hoặc Access Token nếu tài khoản bật bảo mật 2 lớp).
+
+```bash
+docker login
+```
+
+  - Trường hợp 1 (Build mới hoàn toàn): Build image với tên đúng chuẩn `<username>/<repository>:<tag>`:
+
+```bash
+docker build -t your_docker_username/backend-api:v1.0 .
+```
+
+  - Trường hợp 2 (Đã có sẵn Image ở local): Dùng lệnh tag để đổi tên Image cũ sang tên mới đúng chuẩn:
+
+```bash
+docker tag backend-api:latest your_docker_username/backend-api:v1.0
+```
+
+- Đẩy lên kho lưu trữ:
+
+```bash
+docker push your_docker_username/backend-api:v1.0
+```
+
+3. Tối ưu và nâng cao
+
+- Sử dụng Tag động: Push đồng thời 2 tag: một tag version cụ thể (v1.0, v1.1) để lưu trữ lịch sử, và một tag latest để lát nữa khi kéo code trên server EC2, hệ thống tự động nhận bản mới nhất mà không cần bạn phải vào sửa lại file script.
+
+- Registry bảo mật (Private Registry): Thay vì dùng Docker Hub (nơi repo public bị lộ code), hãy chuyển sang sử dụng GitHub Container Registry (ghcr.io) hoặc AWS ECR. Nó hoàn toàn miễn phí cho repository private và tích hợp cực tốt với GitHub Actions trong giai đoạn CI/CD tự động.
+
+4. Lưu ý
+
+- Bảo mật: Không bao giờ push .env file hoặc image có chứa mật khẩu thật lên Docker Hub public.
+
+- Tagging: Hạn chế sử dụng duy nhất tag latest. Nếu bản latest bị lỗi, bạn sẽ không biết quay về (rollback) bản nào.
 
 ---
 
