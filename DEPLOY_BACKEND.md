@@ -101,9 +101,9 @@ graph LR
 
 Giải thích vai trò các thành phần trong luồng:
 
-1. Người dùng (Client): Gửi yêu cầu qua tên miền chính thức.
+1. **Người dùng (Client)**: Gửi yêu cầu qua tên miền chính thức.
 
-2. Cloudflare (Entry Point & Security):
+2. **Cloudflare (Entry Point & Security)**:
 
     - Tiếp nhận yêu cầu đầu tiên.
 
@@ -115,11 +115,11 @@ Giải thích vai trò các thành phần trong luồng:
 
     - Tự động ngăn chặn các đợt tấn công DDoS cơ bản.
 
-3. AWS Security Group (Cloud Firewall): Tường lửa cấp hạ tầng của AWS. Chỉ mở các cổng cần thiết (Port 22 cho SSH, 80 cho HTTP và 443 cho HTTPS) và chỉ cho phép các dải IP của Cloudflare truy cập vào (nếu cần cấu hình chặt chẽ).
+3. **AWS Security Group (Cloud Firewall)**: Tường lửa cấp hạ tầng của AWS. Chỉ mở các cổng cần thiết (Port 22 cho SSH, 80 cho HTTP và 443 cho HTTPS) và chỉ cho phép các dải IP của Cloudflare truy cập vào (nếu cần cấu hình chặt chẽ).
 
-4. Nginx (Web Server & Reverse Proxy): Đứng ở tầng hệ điều hành của EC2. Nginx nhận request từ cổng 80/443 và thực hiện điều phối dữ liệu (proxy_pass) vào port nội bộ của Docker Container đang chạy backend.
+4. **Nginx (Web Server & Reverse Proxy)**: Đứng ở tầng hệ điều hành của EC2. Nginx nhận request từ cổng 80/443 và thực hiện điều phối dữ liệu (proxy_pass) vào port nội bộ của Docker Container đang chạy backend.
 
-5. Docker Container (Backend Layer): Nơi chứa mã nguồn ứng dụng (ví dụ: file .jar của Spring Boot) đã được đóng gói hoàn chỉnh. Ứng dụng xử lý logic và trả kết quả ngược lại theo đúng quy trình trên.
+5. **Docker Container (Backend Layer)**: Nơi chứa mã nguồn ứng dụng (ví dụ: file .jar của Spring Boot) đã được đóng gói hoàn chỉnh. Ứng dụng xử lý logic và trả kết quả ngược lại theo đúng quy trình trên.
 
 ---
 
@@ -129,19 +129,19 @@ Giải thích vai trò các thành phần trong luồng:
 
 Về phía Mã nguồn & Công cụ (Local Machine):
 
-- Ứng dụng Backend: Đã hoàn thiện tính năng cơ bản, đã được viết sẵn Dockerfile và docker-compose.yml.
+- Ứng dụng Backend: Đã hoàn thiện tính năng cơ bản, đã được viết sẵn `Dockerfile` và `docker-compose.yml`.
 
-- SSH Client: Công cụ để điều khiển server từ xa (Terminal trên Linux/macOS, hoặc MobaXterm, PuTTY trên Windows).
+- **SSH Client**: Công cụ để điều khiển server từ xa (Terminal trên Linux/macOS, hoặc MobaXterm, PuTTY trên Windows).
 
 Về phía Tài khoản & Hạ tầng (Cloud Services):
 
-- Tài khoản Docker Hub: Kho chứa Image để vận chuyển ứng dụng từ máy local lên server.
+- Tài khoản **Docker Hub**: Kho chứa Image để vận chuyển ứng dụng từ máy local lên server.
 
-- Tài khoản AWS: Đã kích hoạt và có quyền tạo mới máy chủ ảo EC2 (Gói Free Tier là đủ cho việc học).
+- Tài khoản **AWS**: Đã kích hoạt và có quyền tạo mới máy chủ ảo **EC2** (Gói Free Tier là đủ cho việc học).
 
-- Tên miền (Domain Name): Một tên miền đã sở hữu (Ví dụ: .vn, .com mua từ bất kỳ nhà đăng ký nào).
+- Tên miền (Domain Name): Một tên miền đã sở hữu (Ví dụ: `.vn`, `.com` mua từ bất kỳ nhà đăng ký nào).
 
-- Tài khoản Cloudflare: Đã sẵn sàng và tên miền đã được chuyển Nameserver về Cloudflare để quản lý.
+- Tài khoản **Cloudflare**: Đã sẵn sàng và tên miền đã được chuyển Nameserver về Cloudflare để quản lý.
 
 ---
 
@@ -151,11 +151,11 @@ Về phía Tài khoản & Hạ tầng (Cloud Services):
 
 ### Chuẩn bị ứng dụng để đóng gói
 
-Trước khi đưa ứng dụng vào Docker, mã nguồn cần được cấu hình lại để tách biệt giữa môi trường phát triển (Local) và môi trường thực tế (Production).
+Trước khi đưa ứng dụng vào **Docker**, mã nguồn cần được cấu hình lại để tách biệt giữa môi trường phát triển (Local) và môi trường thực tế (Production).
 
 1. Thiết lập dự án cơ bản
 
-Tạo nhiều file cấu hình (Profiles) trong thư mục `src/main/resources`:
+Tạo nhiều file cấu hình (**Profiles**) trong thư mục `src/main/resources`:
 
 - `application.yml` / `application.properties` (Cấu hình chung mặc định).
 
@@ -193,19 +193,19 @@ Kết quả: File `.jar` sẽ được tạo ra trong thư mục `target/`.
 
 ### Xây dựng Dockerfile
 
-`Dockerfile` là một bản hướng dẫn (recipe) để Docker biết cách xây dựng Image cho ứng dụng của bạn.
+`Dockerfile` là một bản hướng dẫn (recipe) để **Docker** biết cách xây dựng **Image** cho ứng dụng của bạn.
 
 > Tài liệu tham khảo: [Spring Boot with Docker](https://spring.io/guides/gs/spring-boot-docker)
 
 Hướng dẫn và Lưu ý thường gặp:
 
-- Thứ tự Layer: Docker build image theo từng lớp (layer) từ trên xuống. Lệnh nào ít thay đổi (như tải thư viện) nên để ở trên, lệnh nào hay thay đổi (như copy mã nguồn) nên để ở dưới để tận dụng Cache, giúp build nhanh hơn.
+- Thứ tự **Layer**: Docker build image theo từng lớp (layer) từ trên xuống. Lệnh nào ít thay đổi (như tải thư viện) nên để ở trên, lệnh nào hay thay đổi (như copy mã nguồn) nên để ở dưới để tận dụng Cache, giúp build nhanh hơn.
 
 - Lưu ý: Không nên dùng các base image quá nặng (như ubuntu ~70MB) để chạy Java. Hãy dùng các bản rút gọn.
 
 1. Thiết lập cơ bản
 
-Một Dockerfile tiêu chuẩn nằm ở thư mục gốc của dự án sau khi bạn đã tự build ra file `.jar`:
+Một `Dockerfile` tiêu chuẩn nằm ở thư mục gốc của dự án sau khi bạn đã tự build ra file `.jar`:
 
 ```Dockerfile
 # Sử dụng base image có sẵn Java 21
@@ -226,7 +226,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 2. Tối ưu và nâng cao
 
-Phương pháp cơ bản trên yêu cầu máy tính/server của bạn phải cài sẵn Maven để build ra file `.jar` trước. Với Multi-stage build, ta dùng chính Docker để build code, sau đó chỉ lấy file `.jar` kết quả bỏ sang một Image siêu nhẹ để chạy. Cực kỳ hữu ích cho CI/CD!
+Phương pháp cơ bản trên yêu cầu máy tính/server của bạn phải cài sẵn **Maven** để build ra file `.jar` trước. Với Multi-stage build, ta dùng chính Docker để build code, sau đó chỉ lấy file `.jar` kết quả bỏ sang một Image siêu nhẹ để chạy. Cực kỳ hữu ích cho CI/CD!
 
 ```Dockerfile
 # Lớp 1: Build mã nguồn (Có chứa Maven)
@@ -350,13 +350,13 @@ networks:
 
 ### Lưu trữ Image trên Container Registry
 
-Khi Image đã được đóng gói thành công ở máy local, ta cần đưa nó lên một kho lưu trữ đám mây (Registry) để lát nữa máy chủ AWS EC2 có thể kéo (Pull) về.
+Khi **Image** đã được đóng gói thành công ở máy local, ta cần đưa nó lên một kho lưu trữ đám mây (Registry) để lát nữa máy chủ **AWS EC2** có thể kéo (Pull) về.
 
 > Tài liệu tham khảo: [Docker Hub Quickstart](https://docs.docker.com/docker-hub/quickstart/)
 
 Hướng dẫn chi tiết 2 cách thực hiện:
 
-1. Sử dụng Docker Desktop
+1. Sử dụng **Docker Desktop**
 
 Cách này rất tiện lợi khi bạn đang làm việc trên máy tính cá nhân (Windows/macOS) và muốn thao tác nhanh bằng chuột.
 
@@ -367,13 +367,13 @@ Cách này rất tiện lợi khi bạn đang làm việc trên máy tính cá n
 - Một cửa sổ hiện ra, bạn điền **Namespace** (chính là username Docker Hub của bạn) và **Repository** (tên kho chứa). Bổ sung thêm tag (ví dụ: `v1.0`).
 - Nhấn **Push** và theo dõi thanh tiến trình chạy đến khi hoàn tất.
 
-2. Sử dụng Docker CLI (Dòng lệnh - Khuyên dùng)
+2. Sử dụng **Docker CLI** (Dòng lệnh - Khuyên dùng)
 
-Dù dùng giao diện rất trực quan, bạn bắt buộc phải thành thạo cách dùng dòng lệnh. Lý do là vì máy chủ VPS (Ubuntu/EC2) hay các hệ thống tự động cấu hình (CI/CD) hoàn toàn không có giao diện chuột để bạn click.
+Dù dùng giao diện rất trực quan, bạn bắt buộc phải thành thạo cách dùng dòng lệnh. Lý do là vì máy chủ **VPS (Ubuntu/EC2)** hay các hệ thống tự động cấu hình (CI/CD) hoàn toàn không có giao diện chuột để bạn click.
 
 - Đăng nhập (hoặc đăng kí) tài khoản trên [Docker Hub](https://hub.docker.com/)
 
-- Đăng nhập Docker trên máy tính: Mở Terminal/CMD (Ở thư mục dự án có chứa Dockerfile) và gõ lệnh sau. Hệ thống sẽ yêu cầu bạn nhập Username và Password (hoặc Access Token nếu tài khoản bật bảo mật 2 lớp).
+- Đăng nhập Docker trên máy tính: Mở **Terminal/CMD** (Ở thư mục dự án có chứa Dockerfile) và gõ lệnh sau. Hệ thống sẽ yêu cầu bạn nhập **Username** và **Password** (hoặc Access Token nếu tài khoản bật bảo mật 2 lớp).
 
 ```bash
 docker login
@@ -413,14 +413,30 @@ docker push your_docker_username/backend-api:v1.0
 
 ## Chương 3: Khởi tạo và Cấu hình Môi trường Đám mây (AWS EC2)
 
+Sau khi mã nguồn đã được đóng gói gọn gàng thành Docker Image, chúng ta cần một "mảnh đất" trên internet để chạy nó. Trong tài liệu này, AWS EC2 (Elastic Compute Cloud) được lựa chọn vì tính ổn định và có gói Free Tier (miễn phí 1 năm) rất phù hợp để học tập và làm dự án nhỏ.
+
 ### Khởi tạo máy chủ ảo (EC2 Instance)
-*(Hướng dẫn chọn OS Ubuntu, tạo Key Pair `.pem`)*
+
+Đây là bước đi thuê một chiếc máy tính ảo (VPS) chạy hệ điều hành Linux và đặt nó tại trung tâm dữ liệu của Amazon.
+
+> Tài liệu tham khảo: [Hướng dẫn tạo EC2 Instance từ AWS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html)
+
+1. Đăng nhập vào [AWS Management Console](https://console.aws.amazon.com/).
+2. Chuyển vùng (Region) ở góc trên bên phải về khu vực gần người dùng nhất để tối ưu tốc độ (Ví dụ: `ap-southeast-1` - Singapore).
+3. Tìm kiếm dịch vụ **EC2** và chọn **Launch Instance** (Khởi tạo máy chủ mới).
+4. **Name:** Đặt tên cho server (ví dụ: `my-backend-server`).
+5. **Amazon Machine Image (AMI):** Chọn hệ điều hành **Ubuntu**. Nên chọn phiên bản `Ubuntu Server 24.04 LTS` hoặc `22.04 LTS` (có gắn mác *Free tier eligible*).
+6. **Instance type:** Chọn `t2.micro` (đây là gói được miễn phí, có 1 vCPU và 1GB RAM, đủ để chạy 1 backend cơ bản).
+7. **Key pair (Cực kỳ quan trọng):** * Chọn **Create new key pair**.
+   * Đặt tên (ví dụ: `aws-ec2-key`), định dạng `.pem` (cho Mac/Linux) hoặc `.ppk` (nếu dùng PuTTY trên Windows).
+   * Nhấn **Create** và tải file này về. **Lưu ý:** Cất giữ file này thật cẩn thận vì AWS chỉ cho tải 1 lần duy nhất, mất file này đồng nghĩa với việc mất quyền truy cập vào server.
+8. Nhấn **Launch Instance** và đợi khoảng 1-2 phút để máy chủ khởi động.
+
+---
 
 ### Cấu hình bảo mật mạng (Security Groups)
-*(Mở port 22, 80, 443)*
 
 ### Cài đặt môi trường Runtime trên Linux
-*(Các lệnh cài đặt Docker, Docker Compose trên Ubuntu)*
 
 ---
 
