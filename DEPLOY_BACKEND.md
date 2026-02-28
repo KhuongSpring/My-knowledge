@@ -436,6 +436,19 @@ Sau khi mã nguồn đã được đóng gói gọn gàng thành Docker Image, c
 
 ### Cấu hình bảo mật mạng (Security Groups)
 
+Mặc định, AWS đóng cửa toàn bộ các cổng mạng để bảo vệ server. Chúng ta phải chủ động mở "cửa" cho những luồng giao thông (traffic) cần thiết đi vào.
+
+1. Trong màn hình quản lý EC2, chọn Instance bạn vừa tạo.
+2. Chuyển sang tab **Security** ở nửa dưới màn hình -> Bấm vào link của **Security groups**.
+3. Chọn **Edit inbound rules** (Chỉnh sửa quy tắc đầu vào) và thêm các cổng sau:
+   * **Type: SSH | Port: 22 | Source: Anywhere-IPv4 (`0.0.0.0/0`)** -> Mở cửa để bạn có thể remote điều khiển server. *(Tối ưu: Nếu IP nhà mạng của bạn là IP tĩnh, hãy chọn "My IP" thay vì Anywhere để bảo mật tuyệt đối).*
+   * **Type: HTTP | Port: 80 | Source: Anywhere-IPv4** -> Mở cửa cho Web server (Nginx).
+   * **Type: HTTPS | Port: 443 | Source: Anywhere-IPv4** -> Mở cửa cho kết nối an toàn có SSL.
+
+**Lưu ý bảo mật (Nguyên tắc Least Privilege):** Nhiều bạn có thói quen mở luôn Port 8080 (cổng chạy Spring Boot) ra ngoài internet. Điều này là **KHÔNG NÊN**. Chúng ta sẽ dùng Nginx (ở Port 80) làm proxy hứng traffic rồi đẩy ngầm vào Port 8080 bên trong. Port 8080 của ứng dụng chỉ nên được cô lập ở mạng nội bộ (localhost).
+
+---
+
 ### Cài đặt môi trường Runtime trên Linux
 
 ---
