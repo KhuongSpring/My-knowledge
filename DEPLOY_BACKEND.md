@@ -413,11 +413,11 @@ docker push your_docker_username/backend-api:v1.0
 
 ## Chương 3: Khởi tạo và Cấu hình Môi trường Đám mây (AWS EC2)
 
-Sau khi mã nguồn đã được đóng gói gọn gàng thành Docker Image, chúng ta cần một "mảnh đất" trên internet để chạy nó. Trong tài liệu này, AWS EC2 (Elastic Compute Cloud) được lựa chọn vì tính ổn định và có gói Free Tier (miễn phí 1 năm) rất phù hợp để học tập và làm dự án nhỏ.
+Sau khi mã nguồn đã được đóng gói gọn gàng thành **Docker Image**, chúng ta cần một "mảnh đất" trên internet để chạy nó. Trong tài liệu này, **AWS EC2** (Elastic Compute Cloud) được lựa chọn vì tính ổn định và có gói Free Tier (miễn phí 1 năm) rất phù hợp để học tập và làm dự án nhỏ.
 
 ### Khởi tạo máy chủ ảo (EC2 Instance)
 
-Đây là bước đi thuê một chiếc máy tính ảo (VPS) chạy hệ điều hành Linux và đặt nó tại trung tâm dữ liệu của Amazon.
+Đây là bước đi thuê một chiếc máy tính ảo (VPS) chạy hệ điều hành **Linux** và đặt nó tại trung tâm dữ liệu của **Amazon**.
 
 > Tài liệu tham khảo: [Hướng dẫn tạo EC2 Instance từ AWS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html)
 
@@ -450,6 +450,51 @@ Mặc định, AWS đóng cửa toàn bộ các cổng mạng để bảo vệ s
 ---
 
 ### Cài đặt môi trường Runtime trên Linux
+
+Bây giờ chúng ta sẽ đăng nhập vào server và cài đặt "đồ nghề" (Docker & Docker Compose).
+
+**Bước 1: Kết nối vào Server qua SSH**
+
+- Mở Terminal/CMD trên máy tính của bạn.
+
+- Nếu dùng Mac/Linux, bạn cần cấp quyền đọc cho file `.pem` trước:
+
+```bash
+chmod 400 đường_dẫn_tới_file/aws-ec2-key.pem
+```
+
+- Chạy lệnh SSH (Thay `<Public-IP>` bằng địa chỉ IP thật của EC2):
+
+```bash
+ssh -i "đường_dẫn_tới_file/aws-ec2-key.pem" ubuntu@<Public-IP>
+```
+
+- Gõ yes khi được hỏi để xác nhận kết nối. Lúc này màn hình Terminal sẽ chuyển sang giao diện điều khiển của máy chủ Ubuntu.
+
+**Bước 2: Cài đặt Docker & Docker Compose**
+
+- Chạy lần lượt các lệnh sau trên server Ubuntu để làm sạch hệ thống và cài đặt Docker:
+
+```bash
+# Cập nhật danh sách gói phần mềm của hệ điều hành
+sudo apt update && sudo apt upgrade -y
+
+# Cài đặt Docker và Docker Compose bản chuẩn của Ubuntu
+sudo apt install docker.io docker-compose -y
+
+# Khởi động dịch vụ Docker và cho phép nó chạy cùng hệ thống khi reboot
+sudo systemctl enable --now docker
+```
+
+**Tối ưu và nâng cao**
+
+Mặc định, mỗi lần dùng lệnh Docker bạn đều phải gõ chữ sudo (quyền quản trị cao nhất) ở đằng trước, rất mất thời gian (ví dụ: sudo docker ps). Để khắc phục, hãy cấp quyền chạy Docker cho user hiện tại (user ubuntu):
+
+```bash
+sudo usermod -aG docker ubuntu
+```
+
+Lưu ý: Sau khi chạy lệnh này, bạn cần thoát khỏi server (gõ exit) và SSH vào lại để quyền mới có hiệu lực. Từ giờ bạn chỉ cần gõ docker ps là lệnh sẽ chạy mượt mà.
 
 ---
 
