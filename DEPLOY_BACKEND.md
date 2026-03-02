@@ -45,6 +45,7 @@ Những kiến thức cơ bản giúp bạn có thể triển khai một hệ th
 ---
 
 ## Lời mở đầu
+
 Trong quá trình theo học chuyên ngành Kỹ thuật Phần mềm và trực tiếp xây dựng các dự án thực tế (đặc biệt là các hệ thống sử dụng Spring Boot cho backend), tôi nhận ra có một khoảng cách rất lớn giữa việc ứng dụng chạy mượt mà trên `localhost` và việc vận hành nó trên môi trường internet thực tế. Đơn cử như khi bạn cần một public endpoint ổn định, bảo mật để nhận webhook thanh toán từ các dịch vụ bên thứ ba thay vì phải bật các công cụ tunnel tạm thời như ngrok mỗi ngày, việc tự chủ hạ tầng deploy trở thành một kỹ năng bắt buộc.
 
 Tài liệu này được tôi viết lại như một cuốn "nhật ký kỹ thuật" nhằm hệ thống hóa kiến thức và chuẩn bị một hành trang thực tế vững chắc nhất trên con đường theo đuổi vị trí một Backend Developer chuyên nghiệp. Tài liệu ghi lại toàn bộ quy trình chuẩn mực: từ khâu đóng gói ứng dụng, khởi tạo máy chủ, cho đến lúc ứng dụng chính thức chạy online với tên miền riêng và chứng chỉ bảo mật. 
@@ -52,6 +53,7 @@ Tài liệu này được tôi viết lại như một cuốn "nhật ký kỹ t
 Hy vọng những ghi chép này không chỉ giúp ích cho bản thân tôi trong việc tra cứu, ôn tập sau này mà còn có thể trở thành một nguồn tham khảo hữu ích, trực quan cho những ai đang gặp khó khăn ở những bước đầu tiên trên con đường đưa sản phẩm lên "mây".
 
 ## Giới thiệu
+
 Triển khai (Deploy) một hệ thống backend không chỉ đơn thuần là thao tác copy mã nguồn lên một cái máy tính khác có kết nối mạng. Để hệ thống chạy ổn định, an toàn và dễ dàng bảo trì hoặc mở rộng sau này, chúng ta cần sự kết hợp của nhiều tầng công nghệ khác nhau.
 
 Trong tài liệu này, tôi lựa chọn sử dụng một "tech stack" cực kỳ phổ biến và mang tính tiêu chuẩn trong thực tế ngành phần mềm hiện nay:
@@ -66,6 +68,7 @@ Trong tài liệu này, tôi lựa chọn sử dụng một "tech stack" cực k
 ## Chương 1: Tổng quan và Kiến trúc hệ thống
 
 ### Mục tiêu tài liệu
+
 Mục tiêu cốt lõi của tài liệu này là ghi chép lại một lộ trình thực thi (Action Plan) rõ ràng và chuẩn mực để đưa một ứng dụng backend (ví dụ: các hệ thống Spring Boot/Java) từ môi trường phát triển cục bộ (Local Development) lên môi trường triển khai thực tế (Production).
 
 Sau khi hoàn thành các bước trong tài liệu này, hệ thống backend phải đạt được các tiêu chuẩn sau:
@@ -153,7 +156,7 @@ Về phía Tài khoản & Hạ tầng (Cloud Services):
 
 Trước khi đưa ứng dụng vào **Docker**, mã nguồn cần được cấu hình lại để tách biệt giữa môi trường phát triển (Local) và môi trường thực tế (Production).
 
-1. Thiết lập dự án cơ bản
+**Bước 1: Thiết lập dự án cơ bản**
 
 Tạo nhiều file cấu hình (**Profiles**) trong thư mục `src/main/resources`:
 
@@ -163,7 +166,7 @@ Tạo nhiều file cấu hình (**Profiles**) trong thư mục `src/main/resourc
 
 - `application-prod.yml` / `application-prod.properties` (Dùng cho server thực tế).
 
-2. Thiết lập biến môi trường (Environment Variables) cho từng file
+**Bước 2: Thiết lập biến môi trường (Environment Variables) cho từng file**
 
 Tuyệt đối không hardcode (viết cứng) thông tin nhạy cảm như `username`, `password` của Database hay `Secret Key` trực tiếp vào mã nguồn hoặc file `application.yml` rồi push lên Git. Thay vào đó nên sử dụng biến môi trường và ứng dụng sẽ đọc các cấu hình này từ hệ điều hành (hoặc từ Docker) khi khởi chạy.
 
@@ -181,7 +184,7 @@ spring.datasource.username=${DB_USER:root}
 spring.datasource.password=${DB_PASS:}
 ```
 
-3. Đóng gói ứng dụng thành file thực thi `.jar` bằng Maven:
+**Bước 3: Đóng gói ứng dụng thành file thực thi `.jar` bằng Maven:**
 
   ```bash
   mvn clean package -DskipTests
@@ -203,7 +206,7 @@ Hướng dẫn và Lưu ý thường gặp:
 
 - Lưu ý: Không nên dùng các base image quá nặng (như ubuntu ~70MB) để chạy Java. Hãy dùng các bản rút gọn.
 
-1. Thiết lập cơ bản
+**Bước 1: Thiết lập cơ bản**
 
 Một `Dockerfile` tiêu chuẩn nằm ở thư mục gốc của dự án sau khi bạn đã tự build ra file `.jar`:
 
@@ -224,7 +227,7 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
-2. Tối ưu và nâng cao
+**Bước 2: Tối ưu và nâng cao**
 
 Phương pháp cơ bản trên yêu cầu máy tính/server của bạn phải cài sẵn **Maven** để build ra file `.jar` trước. Với Multi-stage build, ta dùng chính Docker để build code, sau đó chỉ lấy file `.jar` kết quả bỏ sang một Image siêu nhẹ để chạy. Cực kỳ hữu ích cho CI/CD!
 
@@ -263,7 +266,7 @@ Một backend thực tế hiếm khi đứng một mình, nó cần Database, Re
 
 > Tài liệu tham khảo: [Docker Compose File Reference](https://docs.docker.com/reference/compose-file/)
 
-1. Thiết lập cơ bản
+**Bước 1: Thiết lập cơ bản**
 
 File `docker-compose.yml` định nghĩa 2 service: app và database.
 
@@ -298,7 +301,7 @@ services:
       - mysql-db
 ```
 
-2. Tối ưu và nâng cao
+**Bước 2: Tối ưu và nâng cao**
 
 Bổ sung **Volumes** (để không mất dữ liệu DB khi xóa container) và thêm **Healthcheck** (để Backend đợi DB khởi động xong mới chạy).
 
@@ -331,6 +334,8 @@ services:
       - "8080:8080"
     env_file:
       - .env # Đọc cấu hình từ file .env ẩn
+    environment:
+      SPRING_PROFILES_ACTIVE: prod # Chỉ định cho docker dùng file application-prod.yml / application-prod.properties
     depends_on:
       mysql-db:
         condition: service_healthy # Đợi DB thực sự ping được mới chạy App
@@ -356,7 +361,7 @@ Khi **Image** đã được đóng gói thành công ở máy local, ta cần đ
 
 Hướng dẫn chi tiết 2 cách thực hiện:
 
-1. Sử dụng **Docker Desktop**
+**Cách 1: Sử dụng Docker Desktop**
 
 Cách này rất tiện lợi khi bạn đang làm việc trên máy tính cá nhân (Windows/macOS) và muốn thao tác nhanh bằng chuột.
 
@@ -367,7 +372,7 @@ Cách này rất tiện lợi khi bạn đang làm việc trên máy tính cá n
 - Một cửa sổ hiện ra, bạn điền **Namespace** (chính là username Docker Hub của bạn) và **Repository** (tên kho chứa). Bổ sung thêm tag (ví dụ: `v1.0`).
 - Nhấn **Push** và theo dõi thanh tiến trình chạy đến khi hoàn tất.
 
-2. Sử dụng **Docker CLI** (Dòng lệnh - Khuyên dùng)
+**Cách 2: Sử dụng Docker CLI (Dòng lệnh - Khuyên dùng)**
 
 Dù dùng giao diện rất trực quan, bạn bắt buộc phải thành thạo cách dùng dòng lệnh. Lý do là vì máy chủ **VPS (Ubuntu/EC2)** hay các hệ thống tự động cấu hình (CI/CD) hoàn toàn không có giao diện chuột để bạn click.
 
@@ -397,13 +402,13 @@ docker tag backend-api:latest your_docker_username/backend-api:v1.0
 docker push your_docker_username/backend-api:v1.0
 ```
 
-3. Tối ưu và nâng cao
+**Tối ưu và nâng cao**
 
 - Sử dụng Tag động: Push đồng thời 2 tag: một tag version cụ thể (v1.0, v1.1) để lưu trữ lịch sử, và một tag latest để lát nữa khi kéo code trên server EC2, hệ thống tự động nhận bản mới nhất mà không cần bạn phải vào sửa lại file script.
 
 - Registry bảo mật (Private Registry): Thay vì dùng Docker Hub (nơi repo public bị lộ code), hãy chuyển sang sử dụng GitHub Container Registry (ghcr.io) hoặc AWS ECR. Nó hoàn toàn miễn phí cho repository private và tích hợp cực tốt với GitHub Actions trong giai đoạn CI/CD tự động.
 
-4. Lưu ý
+**Lưu ý**
 
 - Bảo mật: Không bao giờ push .env file hoặc image có chứa mật khẩu thật lên Docker Hub public.
 
