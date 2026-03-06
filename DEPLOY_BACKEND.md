@@ -353,7 +353,7 @@ networks:
 
 ### Lưu trữ Image trên Container Registry
 
-Khi **Image** đã được đóng gói thành công ở máy local, ta cần đưa nó lên một kho lưu trữ đám mây (Registry) để lát nữa máy chủ **AWS EC2** có thể kéo (Pull) về.
+Khi **Image** đã được đóng gói thành công ở máy local, ta cần đưa nó lên một kho lưu trữ đám mây (Registry) để lát nữa máy chủ **Azure VM** có thể kéo (Pull) về.
 
 > Tài liệu tham khảo: [Docker Hub Quickstart](https://docs.docker.com/docker-hub/quickstart/)
 
@@ -372,7 +372,7 @@ Cách này rất tiện lợi khi bạn đang làm việc trên máy tính cá n
 
 **Cách 2: Sử dụng Docker CLI (Dòng lệnh - Khuyên dùng)**
 
-Dù dùng giao diện rất trực quan, bạn bắt buộc phải thành thạo cách dùng dòng lệnh. Lý do là vì máy chủ **VPS (Ubuntu/EC2)** hay các hệ thống tự động cấu hình (CI/CD) hoàn toàn không có giao diện chuột để bạn click.
+Dù dùng giao diện rất trực quan, bạn bắt buộc phải thành thạo cách dùng dòng lệnh. Lý do là vì máy chủ **VPS (Ubuntu/Azure VM)** hay các hệ thống tự động cấu hình (CI/CD) hoàn toàn không có giao diện chuột để bạn click.
 
 - Đăng nhập (hoặc đăng kí) tài khoản trên [Docker Hub](https://hub.docker.com/)
 
@@ -402,9 +402,9 @@ docker push your_docker_username/backend-api:v1.0
 
 **Tối ưu và nâng cao**
 
-- Sử dụng Tag động: Push đồng thời 2 tag: một tag version cụ thể (v1.0, v1.1) để lưu trữ lịch sử, và một tag latest để lát nữa khi kéo code trên server EC2, hệ thống tự động nhận bản mới nhất mà không cần bạn phải vào sửa lại file script.
+- Sử dụng Tag động: Push đồng thời 2 tag: một tag version cụ thể (v1.0, v1.1) để lưu trữ lịch sử, và một tag latest để lát nữa khi kéo code trên server **Azure VM**, hệ thống tự động nhận bản mới nhất mà không cần bạn phải vào sửa lại file script.
 
-- Registry bảo mật (Private Registry): Thay vì dùng Docker Hub (nơi repo public bị lộ code), hãy chuyển sang sử dụng GitHub Container Registry (ghcr.io) hoặc AWS ECR. Nó hoàn toàn miễn phí cho repository private và tích hợp cực tốt với GitHub Actions trong giai đoạn CI/CD tự động.
+- Registry bảo mật (Private Registry): Thay vì dùng Docker Hub (nơi repo public bị lộ code), hãy chuyển sang sử dụng GitHub Container Registry (ghcr.io). Nó hoàn toàn miễn phí cho repository private và tích hợp cực tốt với GitHub Actions trong giai đoạn CI/CD tự động.
 
 **Lưu ý**
 
@@ -414,7 +414,7 @@ docker push your_docker_username/backend-api:v1.0
 
 ---
 
-## Chương 3: Khởi tạo và Cấu hình Môi trường Đám mây (AWS EC2)
+## Chương 3: Khởi tạo và Cấu hình Môi trường Đám mây (Azure VM)
 
 Sau khi mã nguồn đã được đóng gói gọn gàng thành **Docker Image**, chúng ta cần một "mảnh đất" trên internet để chạy nó. Trong tài liệu này, **Azure Virtual Machines** được lựa chọn cùng gói **Azure for Students** cực kỳ phù hợp để học tập và làm dự án vì không yêu cầu khai báo thẻ tín dụng.
 
@@ -534,8 +534,66 @@ Lưu ý: Sau khi chạy lệnh này, bạn cần thoát khỏi server (gõ exit)
 
 ## Chương 4: Triển khai và Vận hành Ứng dụng
 
+Lúc này, máy chủ Azure VM của chúng ta đã được cài đặt đầy đủ môi trường (Docker). Bước tiếp theo là đưa các file cấu hình lên server và chính thức khởi chạy toàn bộ cụm dịch vụ.
+
 ### Khởi chạy hệ thống Container
-*(Sử dụng lệnh `docker-compose up -d`)*
+
+Khác với máy tính local của bạn (nơi chứa toàn bộ mã nguồn), trên server thực tế, chúng ta không mang mã nguồn thô lên. Chúng ta chỉ mang file `docker-compose.yml`, file biến môi trường `.env` và để Docker tự động lên Docker Hub kéo (pull) Image về chạy.
+
+**Bước 1: Tạo thư mục dự án trên server**
+
+Đang ở trong Terminal (SSH) của Azure VM, bạn tạo một thư mục để chứa các file cấu hình và di chuyển vào đó:
+
+```bash
+mkdir my-backend-project
+cd my-backend-project
+```
+
+**Bước 2: Tạo file biến môi trường (.env)**
+
+Sử dụng trình soạn thảo `nano` (được tích hợp sẵn trên Ubuntu) để tạo file `.env`:
+
+```bash
+nano .env
+```
+
+- Copy nội dung file `.env` từ máy local của bạn (chứa mật khẩu DB, JWT Secret,...) và dán (paste) vào đây.
+
+- Nhấn Ctrl + O rồi Enter để lưu file.
+
+- Nhấn Ctrl + X để thoát cửa sổ nano.
+
+**Bước 3: Tạo file docker-compose.yml**
+
+Tương tự, tạo file `docker-compose.yml`:
+
+```bash
+nano docker-compose.yml
+```
+
+- Dán nội dung file compose của bạn vào.
+
+- Lưu ý cực kỳ quan trọng: Trong file docker-compose.yml trên server, ở phần backend-app, bạn bắt buộc phải chỉ định image: `<tên_username_của_bạn>/backend-api:v1.0`(trỏ về Docker Hub) chứ KHÔNG dùng thuộc tính build: . như khi code ở dưới local (vì trên server không có mã nguồn thô để build).
+
+- Lưu và thoát nano.
+
+**Bước 4: Đăng nhập Docker Hub (Dành cho Private Repository)**
+
+Nếu Image trên Docker Hub của bạn đang để chế độ Private (Riêng tư), máy chủ Azure cần được cấp quyền để kéo code:
+
+```bash
+docker login
+```
+
+**Bước 5: Khởi chạy toàn bộ hệ thống**
+
+Chạy câu lệnh quyền lực sau để Docker tải Image về và khởi động Database cùng Backend:
+
+```bash
+docker-compose up -d
+```
+
+*Giải thích*: Cờ -d (detached) là chỉ thị cực kỳ quan trọng. Nó giúp các container chạy ngầm (background). Nhờ vậy, dù bạn có tắt Terminal hay tắt máy tính cá nhân đi ngủ, ứng dụng trên server vẫn tiếp tục chạy 24/7.
 
 ### Quản lý và Debug (Xử lý sự cố)
 *(Cách xem log bằng `docker logs` và truy cập container bằng `docker exec`)*
