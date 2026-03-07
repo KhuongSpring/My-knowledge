@@ -596,7 +596,57 @@ docker-compose up -d
 *Giải thích*: Cờ -d (detached) là chỉ thị cực kỳ quan trọng. Nó giúp các container chạy ngầm (background). Nhờ vậy, dù bạn có tắt Terminal hay tắt máy tính cá nhân đi ngủ, ứng dụng trên server vẫn tiếp tục chạy 24/7.
 
 ### Quản lý và Debug (Xử lý sự cố)
-*(Cách xem log bằng `docker logs` và truy cập container bằng `docker exec`)*
+
+Khi ứng dụng đã chạy thực tế, sẽ có lúc bị lỗi (bug) hoặc bị sập (crash). Việc quản lý vòng đời của container và đọc log là kỹ năng sống còn của mọi Backend Developer.
+
+1. Kiểm tra trạng thái hệ thống: Để xem có những container nào đang chạy và port nào đang được mở:
+
+```bash
+docker ps
+```
+
+*(Mẹo: Cột STATUS sẽ cho bạn biết container đang Up (đang chạy khỏe mạnh), Restarting (đang bị lỗi sập và đang cố khởi động lại) hay Exited (đã sập hẳn))*.
+
+2. Đọc Log để tìm nguyên nhân lỗi (Debug): Đây là câu lệnh bạn sẽ dùng nhiều nhất. Nếu frontend gọi API báo lỗi 500, hãy xem log của container backend ngay lập tức:
+
+```bash
+docker logs my-app
+```
+
+Hoặc để xem log chạy theo thời gian thực (giống hệt cửa sổ console trên IDE của bạn):
+
+```bash
+docker logs -f my-app
+```
+
+*(Thay my-app bằng tên được cấu hình trong container_name của file docker-compose)*.
+
+3. Truy cập vào bên trong Container: Đôi khi bạn cần vào hẳn bên trong một container đang chạy để kiểm tra xem file đã được copy đúng chưa, hoặc vào thẳng MySQL để gõ lệnh query kiểm tra dữ liệu:
+
+```bash
+# Truy cập vào container backend (sử dụng shell)
+docker exec -it my-app sh
+
+# Truy cập vào container database (ví dụ MySQL) và đăng nhập
+docker exec -it mysql-db bash
+mysql -u root -p
+```
+
+4. Dừng hoặc Cập nhật hệ thống
+
+- Dừng toàn bộ các dịch vụ nhưng **giữ lại** dữ liệu (vì đã bọc volumes):
+
+```bash
+docker-compose down
+```
+
+- Quy trình update phiên bản mới: Khi bạn có code mới (đã đóng gói và push lên Docker Hub), bạn chỉ cần gõ 2 lệnh sau trên server để cập nhật:
+
+```bash
+docker-compose pull   # Kéo các Image mới nhất từ Docker Hub về
+
+docker-compose up -d  # Khởi động lại các container bằng Image mới
+```
 
 ---
 
