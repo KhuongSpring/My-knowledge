@@ -652,8 +652,30 @@ docker-compose up -d  # Khởi động lại các container bằng Image mới
 
 ## Chương 5: Thiết lập Web Server và Reverse Proxy (Nginx)
 
+Lúc này, ứng dụng Backend của bạn đang chạy ở bên trong một Container (ví dụ ở cổng 8080). Thay vì mở toang cổng 8080 này ra internet (rất kém an toàn), chúng ta sẽ dùng Nginx đứng ở ngoài cùng (chạy thẳng trên hệ điều hành Ubuntu của Azure VM). Nginx sẽ hứng toàn bộ traffic ở cổng 80 (HTTP) và cổng 443 (HTTPS), sau đó âm thầm chuyển tiếp (proxy_pass) vào cổng tương ứng bên trong.
+
 ### Cài đặt Nginx
-*(Lệnh `sudo apt install nginx`)*
+
+**Bước 1: Cài đặt phần mềm**
+
+Đang ở màn hình Terminal (SSH) của máy chủ Azure VM, bạn chạy lệnh sau để tải và cài đặt Nginx:
+
+```bash
+sudo apt install nginx -y
+```
+
+**Bước 2: Kiểm tra trạng thái**
+
+Đảm bảo Nginx đã được khởi động và tự động chạy khi máy chủ khởi động lại:
+
+```bash
+sudo systemctl enable --now nginx
+sudo systemctl status nginx
+```
+
+*(Nếu bạn thấy dòng chữ `active (running)` màu xanh lá cây là thành công. Bấm phím `q` trên bàn phím để thoát khỏi màn hình xem trạng thái).*
+
+Lúc này, nếu bạn gõ địa chỉ Public IP của máy chủ Azure lên trình duyệt web, bạn sẽ thấy trang "Welcome to nginx!".
 
 ### Cấu hình Reverse Proxy
 *(Điều hướng traffic từ port 80/443 vào port của Container đang chạy ứng dụng)*
