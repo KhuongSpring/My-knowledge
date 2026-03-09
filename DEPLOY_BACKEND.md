@@ -678,7 +678,71 @@ sudo systemctl status nginx
 Lúc này, nếu bạn gõ địa chỉ Public IP của máy chủ Azure lên trình duyệt web, bạn sẽ thấy trang "Welcome to nginx!".
 
 ### Cấu hình Reverse Proxy
-*(Điều hướng traffic từ port 80/443 vào port của Container đang chạy ứng dụng)*
+
+Bây giờ chúng ta sẽ dạy Nginx cách điều hướng các request nhận được vào đúng container đang chạy Spring Boot.
+
+**Bước 1: Xóa cấu hình mặc định (Tùy chọn nhưng khuyên dùng)**
+
+Để tránh xung đột ở cổng 80, bạn nên vô hiệu hóa trang "Welcome" mặc định của Nginx:
+
+```bash
+sudo rm /etc/nginx/sites-enabled/default
+```
+
+**Bước 2: Tạo file cấu hình mới**
+
+Sử dụng trình soạn thảo `nano` để tạo một file cấu hình riêng cho dự án của bạn (ví dụ đặt tên là `backend-api`):
+
+```bash
+sudo nano /etc/nginx/sites-available/backend-api
+```
+
+**Bước 3: Viết luật điều hướng (Routing rules)**
+
+Copy và dán đoạn cấu hình sau vào file `nano`. Thay `api.domain.com` bằng tên miền thực tế của bạn (hoặc tạm thời để IP Public nếu chưa có tên miền), và đảm bảo `localhost:8080` khớp với port bạn đã map ra ngoài trong file `docker-compose.yml`:
+
+```bash
+server {
+    listen 80;
+    server_name api.domain.com; # Thay bằng tên miền của bạn (vd: api.truyengo.vn)
+
+    location / {
+        proxy_pass http://localhost:8080; # Chuyển tiếp vào cổng 8080 của Docker
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+*Giải thích*: Các dòng `proxy_set_header` vô cùng quan trọng. Nó giúp ứng dụng backend (Spring Boot) nhận biết được IP thật của người dùng thay vì lầm tưởng request đó xuất phát từ chính thằng Nginx.
+
+*(Lưu file bằng cách bấm `Ctrl + O` -> `Enter` -> `Ctrl + X`).*
+
+**Bước 4: Kích hoạt cấu hình**
+
+Tạo một "đường dẫn ảo" (symlink) từ thư mục `sites-available` sang thư mục `sites-enabled `để Nginx bắt đầu đọc cấu hình này:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/backend-api /etc/nginx/sites-enabled/
+```
+
+**Bước 5: Kiểm tra lỗi cú pháp và Khởi động lại**
+
+Trước khi áp dụng, hãy bảo **Nginx** kiểm tra xem bạn có gõ sai cú pháp hay thiếu dấu chấm phẩy nào trong file cấu hình không:
+
+```bash
+sudo nginx -t
+```
+
+*(Nếu kết quả trả về `syntax is ok` và `test is successful` thì bạn đã làm đúng).*
+
+Cuối cùng, khởi động lại **Nginx** để áp dụng thay đổi:
+
+```bash
+sudo systemctl reload nginx
+```
 
 ---
 
