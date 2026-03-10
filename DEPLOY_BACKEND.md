@@ -595,6 +595,8 @@ docker-compose up -d
 
 *Giải thích*: Cờ -d (detached) là chỉ thị cực kỳ quan trọng. Nó giúp các container chạy ngầm (background). Nhờ vậy, dù bạn có tắt Terminal hay tắt máy tính cá nhân đi ngủ, ứng dụng trên server vẫn tiếp tục chạy 24/7.
 
+---
+
 ### Quản lý và Debug (Xử lý sự cố)
 
 Khi ứng dụng đã chạy thực tế, sẽ có lúc bị lỗi (bug) hoặc bị sập (crash). Việc quản lý vòng đời của container và đọc log là kỹ năng sống còn của mọi Backend Developer.
@@ -676,6 +678,8 @@ sudo systemctl status nginx
 *(Nếu bạn thấy dòng chữ `active (running)` màu xanh lá cây là thành công. Bấm phím `q` trên bàn phím để thoát khỏi màn hình xem trạng thái).*
 
 Lúc này, nếu bạn gõ địa chỉ Public IP của máy chủ Azure lên trình duyệt web, bạn sẽ thấy trang "Welcome to nginx!".
+
+---
 
 ### Cấu hình Reverse Proxy
 
