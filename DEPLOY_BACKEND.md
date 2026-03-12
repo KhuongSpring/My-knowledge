@@ -752,11 +752,53 @@ sudo systemctl reload nginx
 
 ## Chương 6: Tên miền và Chống DDoS (Cloudflare)
 
+Việc trỏ trực tiếp tên miền về IP của máy chủ **Azure VM** tiềm ẩn rất nhiều rủi ro bảo mật (ví dụ: dễ bị lộ IP gốc và trở thành mục tiêu của các cuộc tấn công từ chối dịch vụ). Giải pháp tiêu chuẩn hiện nay là sử dụng **Cloudflare** làm lớp trung gian. Toàn bộ traffic sẽ đi qua mạng lưới toàn cầu của Cloudflare để được sàng lọc kỹ càng trước khi đến máy chủ của bạn.
+
 ### Thiết lập DNS Cơ bản
-*(Trỏ bản ghi `A record` về IP của EC2)*
+
+**Bước 1: Thêm tên miền và thay đổi Nameservers**
+
+- Đăng nhập vào [Cloudflare](https://dash.cloudflare.com/) và chọn **Add a Site**. Nhập tên miền bạn đã sở hữu (ví dụ: `domain.com`) và chọn gói **Free** (Miễn phí).
+
+- Cloudflare sẽ quét các bản ghi hiện tại và cung cấp cho bạn 2 địa chỉ **Nameservers** (ví dụ: `ns1.cloudflare.com`, `ns2.cloudflare.com`).
+
+- Quay lại trang quản trị của nhà cung cấp tên miền (nơi bạn đã mua tên miền ban đầu), tìm đến phần cấu hình DNS và thay đổi Nameservers mặc định thành 2 địa chỉ mà Cloudflare vừa cấp. Việc chuyển đổi này có thể mất từ vài phút đến vài giờ để đồng bộ trên toàn cầu.
+
+**Bước 2: Trỏ bản ghi A (A Record) về Azure VM**
+
+Sau khi tên miền đã được Cloudflare tiếp nhận, chúng ta cần định tuyến nó về đúng máy chủ chứa mã nguồn.
+
+Trong giao diện bảng điều khiển Cloudflare, chọn tên miền của bạn và chuyển đến tab **DNS** -> **Records**.
+
+- Bấm **Add record** để tạo bản ghi định tuyến mới với các thông số sau:
+
+  - **Type (Loại):** Chọn `A`.
+
+  - **Name (Tên):** Điền `@` (nếu bạn muốn trỏ tên miền chính `domain.com`) hoặc điền tên subdomain (ví dụ: `api` nếu bạn muốn trỏ `api.domain.com`).
+
+  - **IPv4 address (Địa chỉ đích):** Dán địa chỉ **Public IP** của máy chủ Azure VM của bạn vào đây.
+
+---
 
 ### Kích hoạt lớp bảo vệ Cloudflare
-*(Bật đám mây màu cam)*
+
+Đây là thao tác cực kỳ đơn giản nhưng lại là bước "ăn tiền" nhất khi sử dụng **Cloudflare**, giúp hệ thống backend của bạn ẩn danh hoàn toàn trên internet.
+
+**Bật đám mây màu cam (Proxied)**
+
+- Ngay tại hàng cấu hình bản ghi `A record` vừa tạo ở bước trên, hãy nhìn sang cột **Proxy status**. 
+
+- Đảm bảo nút gạt đang được bật ở trạng thái **Proxied** (Biểu tượng đám mây phát sáng màu cam) thay vì *DNS only* (Đám mây màu xám).
+
+- Bấm **Save** để lưu lại toàn bộ cấu hình.
+
+**Tác dụng của "Đám mây màu cam":**
+
+1. **Ẩn danh IP gốc:** Bất kỳ ai dùng công cụ để truy vết (ping) tên miền của bạn sẽ chỉ nhận lại các dải IP ảo thuộc về Cloudflare. IP thật của chiếc máy chủ Azure VM được giấu kín hoàn toàn, chặn đứng các thủ đoạn tấn công dò quét cổng (port scanning) trực tiếp vào máy chủ.
+
+2. **Chống DDoS tự động:** Khi có lượng yêu cầu (request) đổ về tăng đột biến và bất thường, Cloudflare sẽ tự động đánh giá mức độ nguy hiểm, bật chế độ xác nhận (Captcha), hoặc vứt bỏ (drop) các luồng traffic rác trước khi chúng kịp chạm đến server của bạn.
+
+3. **Tăng tốc phản hồi (CDN):** Cloudflare sẽ điều phối người dùng truy cập vào máy chủ biên (Edge Server) có vị trí địa lý gần họ nhất, giúp giảm đáng kể độ trễ mạng (latency) khi gọi API.
 
 ---
 
