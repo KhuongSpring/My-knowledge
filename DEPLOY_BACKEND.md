@@ -910,8 +910,44 @@ sudo systemctl reload nginx
 
 ## Chương 8: Kiểm thử và Vận hành (Testing & Operation)
 
+Khi toàn bộ cụm Server, Docker, Nginx và Cloudflare đã được cấu hình ăn khớp với nhau, việc cuối cùng là xác nhận mọi luồng dữ liệu đều hoạt động mượt mà và lên kế hoạch tự động hóa cho tương lai.
+
 ### Kiểm thử toàn diện
-*(Test gọi API qua Postman, test các luồng nhận Webhook thanh toán (ví dụ: Tingee) qua mạng public)*
+
+**1. Kiểm thử các endpoint thông thường bằng Postman**
+
+- Thay vì gọi `http://localhost:8080/api/users`, bây giờ bạn chỉ cần đổi toàn bộ biến môi trường trên Postman thành tên miền chính thức: `https://api.domain.com/api/users`.
+
+**Lưu ý:** Nếu ứng dụng của bạn có Frontend (React/Vue) gọi tới, hãy mở tab Network trên trình duyệt (F12) để kiểm tra xem có bị lỗi **CORS (Cross-Origin Resource Sharing)** không. Nếu có, bạn cần vào mã nguồn Spring Boot cấu hình lại `CorsRegistry` để cho phép tên miền Frontend được phép gọi API.
+
+---
 
 ### Bảo trì và Cập nhật (Hướng phát triển)
-*(Cách update phiên bản mới, định hướng dùng GitHub Actions)*
+
+**1. Quy trình cập nhật phiên bản mới (Thủ công)**
+
+Khi có một tính năng mới được code xong ở máy tính của bạn, quy trình deploy hiện tại sẽ tốn khoảng 3 phút với các bước sau:
+
+- Ở máy local: Build ra file `.jar` -> Dùng `docker build` tạo Image mới -> Dùng `docker push` đẩy Image lên Docker Hub.
+
+- Ở máy chủ Azure: SSH vào server -> Di chuyển tới thư mục chứa `docker-compose.yml` -> Chạy `docker-compose pull` để lấy Image mới -> Chạy `docker-compose up -d` để khởi động lại dịch vụ.
+
+**2. Định hướng tự động hóa CI/CD với GitHub Actions (Next Steps)**
+
+Việc lặp đi lặp lại quy trình thủ công trên không chỉ nhàm chán mà còn dễ xảy ra sai sót do gõ nhầm lệnh. Trong tương lai, khi dự án phình to, bạn nên tích hợp **CI/CD pipeline**.
+
+- **Kịch bản tự động hoàn toàn (Zero-touch deployment):**
+
+  1. Bạn code xong tính năng và gõ lệnh `git push origin main` đưa code lên GitHub.
+
+  2. GitHub Actions (một con bot của GitHub) sẽ tự động nhận diện có code mới.
+
+  3. Bot tự động chạy Unit Test.
+
+  4. Nếu test pass, bot tự động chạy `docker build` và đẩy thẳng vào GitHub Container Registry (`ghcr.io`).
+
+  5. Cuối cùng, bot tự động lấy chìa khóa SSH `.pem` (đã được bạn cất giấu bí mật trong GitHub Secrets), kết nối thẳng vào máy chủ Azure VM và tự động gõ lệnh `docker-compose pull && docker-compose up -d`.
+
+Lúc đó, công việc của bạn chỉ là viết code, nhấn Push, và ngồi nhìn hệ thống tự động làm mọi thứ còn lại.
+
+### Xin chúc mừng! Vậy là bộ tài liệu "nhật ký kỹ thuật" cực kỳ chi tiết và chuyên nghiệp của bạn đã hoàn tất. Có nó trong tay, bạn hoàn toàn làm chủ được quy trình vận hành hệ thống.
