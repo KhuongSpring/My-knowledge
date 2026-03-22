@@ -4,6 +4,60 @@
 
 ## 4 Tính Chất Quan Trọng Của OOP
 
+> Nguồn: [JavaHighlight](https://javahighlight.com/java/lap-trinh-huong-doi-tuong-trong-java)
+
+### 1. Tính đóng gói (Encapsulation)
+
+Là việc đóng gói dữ liệu (các biến) và các phương thức thao tác trên dữ liệu đó trong một lớp, nhằm che giấu thông tin bên trong lớp và chỉ cung cấp những gì cần thiết thông qua các phương thức công khai (public methods).
+
+---
+
+### 2. Tính kế thừa (Inheritance)
+
+Kế thừa trong java là sự liên quan giữa hai class với nhau, trong đó có class cha (superclass) và class con (subclass). Khi kế thừa class con được hưởng tất cả các phương thức và thuộc tính của class cha. Tuy nhiên, nó chỉ được truy cập các thành viên **public** và **protected** của class cha. Nó không được phép truy cập đến thành viên **private** của class cha.
+
+#### Các kiểu kế thừa trong java
+
+- Các kiểu kế thừa theo lớp
+
+    - *Đơn kế thừa (Single Inheritance)*: Một lớp chỉ có thể kế thừa từ một lớp cha duy nhất. Đây là kiểu kế thừa phổ biến nhất trong Java.
+
+    - *Kế thừa đa cấp (Multilevel Inheritance)*: Một lớp kế thừa từ một lớp cha, lớp cha này lại kế thừa từ một lớp cha khác và cứ thế. Tạo thành một chuỗi kế thừa nhiều cấp.
+
+    - *Kế thừa thứ bậc (Hierarchical Inheritance)*: Nhiều lớp con kế thừa từ cùng một lớp cha.
+
+#### Tại sao Java không hỗ trợ đa kế thừa trực tiếp qua lớp?
+
+Một trong những vấn đề nổi bật nhất là "Diamond Problem" (Vấn đề kim cương):
+
+- Giả sử bạn có 4 lớp: A, B, C, và D.
+
+- Lớp B và C đều kế thừa từ lớp A.
+
+- Lớp D kế thừa cả lớp B và lớp C.
+
+Trong trường hợp này, lớp D sẽ có hai bản sao của tất cả các phương thức và biến từ lớp A (thông qua lớp B và lớp C). Nếu lớp A có một phương thức, lớp D sẽ không biết chính xác phải sử dụng phiên bản nào của phương thức đó - phiên bản từ B hay từ C? Điều này dẫn đến sự mơ hồ và xung đột.
+
+![alt text](image/diamond_problem.png)
+
+**=> Giải pháp:** 
+
+- Đa kế thừa qua Interface
+
+- Sử dụng các lớp trừu tượng
+
+---
+
+### 3. Tính đa hình (Polymorphism)
+
+Tính đa hình cho phép một đối tượng có thể thực hiện các hành động (phương thức) theo nhiều cách khác nhau. Điều này có nghĩa là cùng một giao diện hoặc phương thức, nhưng các đối tượng khác nhau có thể triển khai và thực hiện hành động đó theo cách riêng của mình.
+
+---
+
+### 4. Tính trừu tượng (Abstraction)
+
+Trừu tượng (Abstraction) là quá trình ẩn đi chi tiết triển khai và chỉ hiển thị chức năng cho người dùng. Nói cách khác, nó chỉ cho người dùng thấy những phần quan trọng và giấu đi các chi tiết bên trong. Trừu tượng giúp bạn tập trung vào những gì đối tượng làm thay vì cách nó làm.
+
 ## String Class
 
 ## Phương Thức equals() & hashCode() trong Java
