@@ -58,9 +58,73 @@ Tính đa hình cho phép một đối tượng có thể thực hiện các hà
 
 Trừu tượng (Abstraction) là quá trình ẩn đi chi tiết triển khai và chỉ hiển thị chức năng cho người dùng. Nói cách khác, nó chỉ cho người dùng thấy những phần quan trọng và giấu đi các chi tiết bên trong. Trừu tượng giúp bạn tập trung vào những gì đối tượng làm thay vì cách nó làm.
 
+---
+
 ## String Class
 
-## Phương Thức equals() & hashCode() trong Java
+> Nguồn: [JavaHighlight](https://javahighlight.com/java/lop-string-trong-java)
+
+### StringBuffer
+
+`StringBuffer` là một lớp trong Java đại diện cho một chuỗi ký tự có thể thay đổi. Khác với lớp String là bất biến (không thể thay đổi), `StringBuffer` cho phép bạn sửa đổi nội dung của chuỗi mà không cần tạo ra một đối tượng mới mỗi lần.
+
+#### Đặc điểm
+
+- An toàn cho đa luồng: Các phương thức của `StringBuffer` được đồng bộ hóa, đảm bảo rằng các hoạt động trên cùng một đối tượng `StringBuffer` từ nhiều luồng khác nhau diễn ra theo một thứ tự nhất quán.
+
+- Có thể thay đổi: Bạn có thể thêm, xóa hoặc thay thế các ký tự trong một đối tượng `StringBuffer`.
+
+- Có dung lượng: Mỗi `StringBuffer` có một dung lượng. Nếu chuỗi vượt quá dung lượng, bộ nhớ sẽ tự động được mở rộng.
+
+#### So sánh `String` & `StringBuffer`
+
+| Tiêu chí | `String` | `StringBuffer` |
+|-------|-----------|------------|
+| **Tính chất** | Bất biến (immutable) | Có thể thay đổi (mutable) |
+| **Hiệu suất thay đổi** |Kém hiệu quả với các thao tác thay đổi nhiều lần vì tạo ra đối tượng mới mỗi lần thay đổi. | Hiệu quả hơn với các thao tác thay đổi nhiều lần vì thay đổi trực tiếp trên đối tượng hiện tại. |
+| **An toàn trong đa luồng** | An toàn (thread-safe) vì là bất biến. | An toàn (thread-safe) vì các phương thức được đồng bộ hóa. |
+| **Khả năng mở rộng** | Không mở rộng kích thước (đối tượng không thay đổi). | Tự động mở rộng kích thước khi cần. |
+| **Phương thức thay đổi** | Không có phương thức để thay đổi nội dung. | Cung cấp các phương thức như append(), insert(), delete(), replace(). |
+| **Sử dụng trong đa luồng** | Thích hợp khi làm việc với chuỗi không thay đổi. | Thích hợp khi làm việc với chuỗi thay đổi trong môi trường đa luồng. |
+| **Khả năng tối ưu hóa** | Tối ưu cho các thao tác với chuỗi bất biến. | Tối ưu cho các thao tác thay đổi chuỗi. |
+| **Khả năng điều chỉnh kích thước** | Không hỗ trợ điều chỉnh kích thước. | Hỗ trợ điều chỉnh kích thước tự động. |
+| **Tạo đối tượng mới** | 	Tạo đối tượng mới khi thực hiện thao tác thay đổi. | Không tạo đối tượng mới khi thay đổi nội dung. |
+
+#### Các phương thức của `StringBuffer`
+
+- `append()`: thêm dữ liệu vào cuối chuỗi của lớp `StringBuffer`.
+
+- `delete()`: xóa ký tự hoặc chuỗi của lớp `StringBuffer`.
+
+- `insert()`: chèn dữ liệu vào một vị trí cụ thể của lớp `StringBuffer`.
+
+- `replace(startIndex, endIndex, replacement)` / `setCharAt(int index, char ch)`: thay đổi đoạn / kí tự.
+
+- `reverse()`: Đảo ngược toàn bộ thứ tự các ký tự trong chuỗi `StringBuffer`.
+
+---
+
+### StringBuilder
+
+`StringBuilder` là một lớp trong Java đại diện cho một chuỗi ký tự có thể thay đổi. Nó tương tự như `StringBuffer` nhưng **không đảm bảo tính đồng bộ**, điều này làm cho nó **nhanh hơn** trong môi trường đơn luồng.
+
+#### Đặc điểm
+
+- Có thể thay đổi: Bạn có thể thêm, xóa hoặc thay thế các ký tự trong một đối tượng `StringBuilder`.
+
+- Không an toàn cho đa luồng: Các phương thức của `StringBuilder` không được đồng bộ hóa, vì vậy không nên sử dụng nó trong môi trường đa luồng.
+
+- Có dung lượng: Mỗi `StringBuilder` có một dung lượng. Nếu chuỗi vượt quá dung lượng, bộ nhớ sẽ tự động được mở rộng.
+
+#### So sánh `StringBuffer` & `StringBuilder`
+
+**Đồng bộ hóa (Synchronization):**
+
+- `StringBuffer`: Là một lớp đồng bộ hóa (synchronized). Điều này có nghĩa là các phương thức của `StringBuffer` được thiết kế để an toàn khi sử dụng trong môi trường đa luồng. Khi nhiều luồng cùng truy cập và sửa đổi một đối tượng `StringBuffer`, các phương thức sẽ được thực thi một cách tuần tự, tránh xung đột dữ liệu.
+
+- `StringBuilder`: Không đồng bộ. Điều này làm cho `StringBuilder` hiệu quả hơn `StringBuffer` trong các môi trường đơn luồng, nhưng không an toàn khi sử dụng trong môi trường đa luồng. Nếu nhiều luồng cùng truy cập và sửa đổi một đối tượng `StringBuilder`, có thể dẫn đến các vấn đề về đồng bộ hóa và lỗi không mong muốn.
+
+## Phương Thức `equals()` & `hashCode()` trong Java
 
 > Nguồn: [Viblo](https://viblo.asia/p/phuong-thuc-equals-hashcode-trong-java-tim-hieu-chi-tiet-K9Vy8XyaLQR)
 
