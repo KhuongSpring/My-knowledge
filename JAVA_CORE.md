@@ -247,4 +247,340 @@ Ví dụ, nếu bạn không ghi đè `hashCode()` mà chỉ ghi đè `equals()`
 
 - Tối ưu hóa hiệu suất: Một `hashCode()` tốt giúp giảm xung đột trong bảng băm, cải thiện tốc độ truy xuất.
 
+---
+
 ## Collections
+
+> Nguồn: [JavaHighlight](https://javahighlight.com/java/collection-trong-java)
+
+### Interface Iterable<T>
+
+Interface này cho phép các đối tượng của lớp triển khai nó có thể được duyệt qua trong một vòng lặp "for-each".
+
+#### Các phương thức của Interface Iterable<T>
+
+1. Phương thức `Iterator<T> iterator()`
+
+- Mô tả: Phương thức này trả về một đối tượng `Iterator`.
+
+- Ví dụ:
+
+    ```java
+    List<String> fruits = new ArrayList<>();
+    fruits.add("Apple");
+    fruits.add("Banana");
+
+    Iterator<String> it = fruits.iterator();
+    while (it.hasNext()) {
+        System.out.println(it.next());
+    }
+    // Output:
+    // Apple
+    // Banana
+    ```
+
+2. Phương thức default `void forEach(Consumer<? super T> action)`
+
+- Mô tả: Nó thực hiện một hành động của mỗi phần tử trong tập hợp cho đến khi tất cả các phần tử đã được xử lý hoặc có một ngoại lệ được ném ra (`NullPointerException`).
+
+- Ví dụ:
+
+    ```java
+    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+    numbers.forEach(number -> System.out.println("Number: " + number));
+    // Output:
+    // Number: 1
+    // Number: 2
+    // Number: 3
+    // Number: 4
+    // Number: 5
+    ```
+
+3. Phương thức default `Spliterator<T> spliterator()`
+
+- Mô tả: Đây cũng là một phương thức được sử dụng để tạo một đối tượng `Spliterator`. `Spliterator` là một phiên bản nâng cao của `Iterator`, được thiết kế đặc biệt để hỗ trợ việc xử lý song song (parallel processing) và chia nhỏ tập dữ liệu hiệu quả hơn.
+
+- Lưu ý triển khai: Mặc dù có một triển khai mặc định, nhưng nhà phát triển thường nên ghi đè phương thức này. Triển khai mặc định thường có khả năng chia nhỏ kém, không xác định kích thước và không báo cáo bất kỳ đặc tính nào của spliterator, dẫn đến hiệu suất không tối ưu cho các thao tác song song.
+
+    ```java
+    List<String> items = Arrays.asList("A", "B", "C", "D");
+    Spliterator<String> spliterator = items.spliterator();
+    // Spliterator có thể được chia nhỏ để xử lý song song
+    Spliterator<String> anotherSpliterator = spliterator.trySplit();
+    ```
+    
+- `Spliterator` thường được sử dụng nội bộ bởi các **Stream API** trong Java để xử lý dữ liệu song song. Bạn ít khi gọi trực tiếp phương thức này, nhưng nó là nền tảng cho cách các stream hoạt động.
+
+---
+
+### Interface Set<E>
+
+`Set` là một collection không chứa các phần tử trùng lặp. Hơn nữa, tập hợp có thể chứa tối đa một phần tử null.
+
+#### Đặc điểm
+
+- Không chứa phần tử trùng lặp.
+
+- Tối đa một phần tử null.
+
+- Đặc điểm không duy trì thứ tự.
+
+#### Các phương thức của `Interface Set<E>`
+
+- `void clear()`: Xóa tất cả các phần tử khỏi set.
+
+- `boolean contains(Object o)`: Trả về **true** nếu set này chứa phần tử o.
+
+- `boolean containsAll(Collection<?> c):` Trả về **true** nếu set này chứa tất cả các phần tử trong collection c.
+
+- `boolean equals(Object o)`: So sánh đối tượng đã cho với set này để kiểm tra xem chúng có bằng nhau hay không.
+
+- `int hashCode()`: Trả về giá trị mã băm cho set này.
+
+- `boolean isEmpty()`: Trả về true nếu set này không chứa phần tử nào.
+
+- `Iterator<E> iterator()`: Trả về một iterator duyệt qua các phần tử trong set.
+
+- `boolean remove(Object o)`: Xóa phần tử o khỏi set này nếu nó tồn tại.
+
+- `boolean removeAll(Collection<?> c)`: Xóa tất cả các phần tử của set này cũng có trong collection c.
+
+- `boolean retainAll(Collection<?> c)`: Giữ lại chỉ những phần tử trong set này cũng có trong collection c.
+
+- `int size()`: Trả về số lượng phần tử trong set này.
+
+- `default Spliterator<E> spliterator()`: Tạo một Spliterator duyệt qua các phần tử trong set này.
+
+- `Object[] toArray()`: Trả về một mảng chứa tất cả các phần tử trong set này.
+
+-` <T> T[] toArray(T[] a)`: Trả về một mảng chứa tất cả các phần tử trong set này; kiểu thời gian chạy của mảng được trả về là kiểu của mảng đã cho.
+
+---
+
+### Class HashSet<E>
+
+`HashSet` sử dụng một bảng băm (hash table) dưới dạng một thể hiện của `HashMap` để lưu trữ các phần tử. Điều này có nghĩa là các phần tử trong `HashSet` được lưu trữ dựa trên giá trị băm của chúng, và vì thế không đảm bảo thứ tự của các phần tử khi duyệt qua.
+
+#### Đặc điểm
+
+- `HashSet` lưu trữ các phần tử bằng cách sử dụng cơ chế hashing (băm).
+
+- `HashSet` chỉ chứa các phần tử duy nhất.
+
+- `HashSet` cho phép một giá trị null duy nhất.
+
+- `HashSet` không đồng bộ.
+
+- `HashSet` không duy trì thứ tự chèn.
+
+- `HashSet` là phương pháp tốt nhất cho các thao tác tìm kiếm. Vì sử dụng bảng băm, các thao tác tìm kiếm trong HashSet có hiệu suất cao.
+
+- Dung lượng mặc định ban đầu của `HashSet` là `16` và hệ số tải (load factor) là `0.75`. Hệ số tải quyết định khi nào HashSet sẽ tăng dung lượng.
+
+    > Hệ số tải (Load factor) là 0.75:
+    > - Ý nghĩa: Nếu số phần tử đạt 75% so với dung lượng của bảng băm, bảng băm sẽ tự động gấp đôi kích thước.
+    > - 0.75 là hệ số cân bằng: Nếu quá thấp thì sẽ có nhiều khoảng trống, nếu quá cao sẽ dẫn đến va chạm (collision).
+    > - Khi Load factor đạt 0.75: Bảng băm sẽ thực hiện rehashing.
+
+---
+
+### Class TreeSet<E>
+
+`TreeSet` trong Java là một triển khai của `SortedSet interface`.TreeSet sử dụng một cấu trúc dữ liệu cây đặc biệt, thường là cây đỏ đen (Red-Black Tree).
+
+Cây đỏ-đen là một loại **cây nhị phân** tự cân bằng, nghĩa là cây sẽ tự động duy trì trạng thái cân bằng để đảm bảo các thao tác như tìm kiếm, thêm, hoặc xóa một phần tử đều diễn ra trong thời gian **O(log n)**.
+
+### Interface Map<K,V>
+
+Map<K,V> đại diện cho một cấu trúc dữ liệu lưu trữ các cặp khóa-giá trị (key-value pairs). Mỗi khóa là duy nhất và ánh xạ đến một giá trị duy nhất. Map không cho phép tồn tại các khóa trùng lặp.
+
+#### Đặc điểm
+
+- Quản lý các cặp khóa-giá trị (Key-Value Pairs):
+
+    - Map lưu trữ dữ liệu dưới dạng các cặp khóa-giá trị, mỗi khóa (key) tương ứng với một giá trị (value).
+
+    - Khóa phải là duy nhất, không thể có hai khóa trùng nhau trong một Map. Mỗi khóa chỉ ánh xạ đến một giá trị duy nhất.
+
+    - Không chứa các khóa trùng lặp: Nếu bạn cố gắng chèn một phần tử mới với khóa đã tồn tại, giá trị cũ sẽ bị ghi đè bởi giá trị mới.
+
+- Map cung cấp ba dạng chế độ xem:
+
+    - Tập hợp các khóa (`Set<K> keySet()`).
+
+    - Tập hợp các giá trị (`Collection<V> values()`).
+
+    - Tập hợp các cặp khóa-giá trị (`Set<Map.Entry<K,V>> entrySet()`), cho phép duyệt qua toàn bộ các cặp khóa-giá trị.
+
+- Có nhiều lớp triển khai của `Map` với các đặc tính khác nhau như:
+
+    - `HashMap`: Không duy trì thứ tự các phần tử.
+
+    - `TreeMap`: Duy trì thứ tự sắp xếp của các khóa.
+
+    - `LinkedHashMap`: Duy trì thứ tự chèn các phần tử.
+
+    - Hỗ trợ thao tác nhanh chóng: Các thao tác như chèn, xóa và tìm kiếm thường diễn ra nhanh chóng trong các triển khai `Map` như `HashMap` nhờ sử dụng mã băm (hashing).
+
+![alt text](image/class_interface_implement_map.png)
+
+#### Phương thức static interface Map.Entry<K,V>
+
+`Map.Entry<K,V>` cung cấp các phương thức để truy cập và thiết lập khóa và giá trị của một cặp.
+
+Lưu ý: 
+
+- Các đối tượng `Map.Entry` chỉ hợp lệ khi bạn đang duyệt `Map` với một `iterator`.
+
+- Nếu `Map` bị thay đổi (ví dụ, thêm hoặc xóa phần tử) trong khi bạn đang duyệt `Map`, các đối tượng `Map.Entry` có thể trở nên không hợp lệ, dẫn đến hành vi không xác định.
+
+#### Các phương thức chính trong interface `Map<K,V>`
+
+- `void clear()`: Xóa tất cả các ánh xạ khỏi map.
+
+- `boolean containsKey(Object key)`: Trả về true nếu map này chứa một ánh xạ cho khóa đã cho.
+
+- `boolean containsValue(Object value)`: Trả về true nếu map này ánh xạ một hoặc nhiều khóa đến giá trị đã cho.
+
+- `Set<Map.Entry<K,V>> entrySet()`: Trả về một view Set của các ánh xạ có trong map này.
+
+- `boolean equals(Object o)`: So sánh đối tượng đã cho với map này để kiểm tra xem chúng có bằng nhau hay không.
+
+- `default void forEach(Consumer<? super K, ? super V> action)`: Thực hiện hành động đã cho cho mỗi mục nhập trong map này.
+
+- `E get(Object key)`: Trả về giá trị mà khóa đã cho được ánh xạ đến.
+
+- `default getOrDefault(Object key, V defaultValue)`: Trả về giá trị mà khóa đã cho được ánh xạ đến, hoặc `defaultValue` nếu map này không chứa ánh xạ nào cho khóa.
+
+- `boolean isEmpty()`: Trả về true nếu map này không chứa ánh xạ khóa-giá trị nào.
+
+- `Set<K> keySet()`: Trả về một view Set của các khóa có trong map này.
+
+- `default V merge(K key, V value, Function<? super K, ? super V, ? extends V> remappingFunction)`: Nếu khóa đã cho chưa được liên kết với một giá trị hoặc được ánh xạ đến null, liên kết nó với giá trị không null đã cho.
+
+- `E put(K key, V value)`: Liên kết giá trị đã cho với khóa đã cho trong map này (Thêm phần tử vào map).
+
+- `void putAll(Map<? extends K, ? extends V> m)`: Sao chép tất cả các ánh xạ từ map đã cho vào map này.
+
+- `default V putIfAbsent(K key, V value)`: Nếu khóa đã cho chưa được liên kết với một giá trị (hoặc được ánh xạ đến null), liên kết nó với giá trị đã cho và trả về null, nếu không thì trả về giá trị hiện tại.
+
+- `V remove(Object key)`: Xóa ánh xạ cho một khóa khỏi bản đồ này nếu nó có mặt.
+
+- `default boolean remove(Object key, Object value)`: Xóa mục nhập cho khóa đã cho chỉ khi nó hiện đang được ánh xạ đến giá trị đã cho.
+
+- `default V replace(K key, V value)`: Thay thế mục nhập cho khóa đã cho chỉ khi nó hiện đang được ánh xạ đến một số giá trị.
+
+- `int size()`: Trả về số lượng ánh xạ khóa-giá trị trong map này.
+
+- `Collection<V> values()`: Trả về một view Collection của các giá trị có trong bản đồ này.
+
+Dưới đây là một ví dụ về cách sử dụng một số phương thức quan trọng của giao diện Map trong một lớp Java duy nhất. Ví dụ này sẽ minh họa các phương thức như put(), get(), remove(), containsKey(), containsValue(), size(), isEmpty(), keySet(), values(), và entrySet().
+
+```java
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class Example {
+    public static void main(String[] args) {
+        // Tạo một HashMap với các cặp khóa-giá trị
+        Map<String, Integer> map = new HashMap<>();
+
+        // 1. put(K key, V value) - Thêm một cặp khóa-giá trị vào Map
+        map.put("Apple", 10);
+        map.put("Banana", 20);
+        map.put("Orange", 30);
+        map.put("Mango", 40);
+
+        // 2. get(Object key) - Truy xuất giá trị dựa trên khóa
+        Integer appleValue = map.get("Apple");
+        System.out.println("Giá trị liên kết với 'Apple': " + appleValue);
+
+        // 3. remove(Object key) - Loại bỏ một cặp khóa-giá trị khỏi Map
+        map.remove("Banana");
+        System.out.println("Map sau khi xóa 'Banana': " + map);
+
+        // 4. containsKey(Object key) - Kiểm tra xem khóa có tồn tại trong Map hay không
+        boolean containsOrange = map.containsKey("Orange");
+        System.out.println("Map chứa 'Orange': " + containsOrange);
+
+        // 5. containsValue(Object value) - Kiểm tra xem giá trị có tồn tại trong Map hay không
+        boolean contains30 = map.containsValue(30);
+        System.out.println("Map chứa giá trị 30: " + contains30);
+
+        // 6. size() - Trả về số lượng cặp khóa-giá trị trong Map
+        int size = map.size();
+        System.out.println("Kích thước của map: " + size);
+
+        // 7. isEmpty() - Kiểm tra xem Map có rỗng không
+        boolean isEmpty = map.isEmpty();
+        System.out.println("Map trống: " + isEmpty);
+
+        // 8. keySet() - Trả về một tập hợp các khóa trong Map
+        Set<String> keys = map.keySet();
+        System.out.println("Keys trong map: " + keys);
+
+        // 9. values() - Trả về một Collection các giá trị trong Map
+        Collection<Integer> values = map.values();
+        System.out.println("Values trong map: " + values);
+
+        // 10. entrySet() - Trả về một tập hợp các cặp Map.Entry trong Map
+        Set<Map.Entry<String, Integer>> entries = map.entrySet();
+        System.out.println("Entries trong map:");
+        for (Map.Entry<String, Integer> entry : entries) {
+            System.out.println(entry.getKey() + " => " + entry.getValue());
+        }
+    }
+}
+```
+
+Kết quả:
+
+```
+Giá trị liên kết với 'Apple': 10
+Map sau khi xóa 'Banana': {Apple=10, Mango=40, Orange=30}
+Map chứa 'Orange': true
+Map chứa giá trị 30: true
+Kích thước của map: 3
+Map trống: false
+Keys trong map: [Apple, Mango, Orange]
+Values trong map: [10, 40, 30]
+Entries trong map:
+Apple => 10
+Mango => 40
+Orange => 30
+```
+
+---
+
+### Class HashMap<K,V>
+
+`HashMap<K,V>` là một lớp triển khai của giao diện Map trong Java, sử dụng bảng băm (hash table) để lưu trữ các cặp khóa-giá trị, giúp việc truy xuất giá trị theo khóa diễn ra nhanh chóng, thường có thời gian truy xuất hằng số (constant-time) cho các hoạt động cơ bản như **get** và **put**.
+
+#### Đặc điểm
+
+- Bảng Băm: `HashMap` sử dụng bảng băm để lưu trữ các cặp khóa-giá trị.
+
+- Cho phép null: `HashMap` chỉ cho phép một khóa null duy nhất và nhiều giá trị null.
+
+- Không đảm bảo thứ tự: `HashMap` không đảm bảo rằng thứ tự của các phần tử sẽ được giữ nguyên qua thời gian.
+
+- Hiệu suất: Hiệu suất của `HashMap` phụ thuộc vào số lượng phần tử và số lượng các bucket (thùng) trong bảng băm. HashMap có hai tham số chính ảnh hưởng đến hiệu suất là initial capacity (dung lượng ban đầu) và load factor (hệ số tải).
+
+- Tự động rehashing: Khi số phần tử trong `HashMap` vượt quá một ngưỡng nhất định (dựa trên load factor), bảng băm sẽ tự động được "rehash" (tái lập bảng băm) để tăng kích thước, giúp duy trì hiệu suất.
+
+- Không đồng bộ (Not Synchronized): `HashMap` không được thiết kế để đồng bộ hóa,  có thể dẫn đến các vấn đề như `ConcurrentModificationException` hoặc hành vi không xác định.
+
+- Đồng bộ hóa bằng cách bao bọc (wrap) `HashMap`: Có thể sử dụng phương thức `Collections.synchronizedMap` để bao bọc HashMap nhằm đảm bảo rằng tất cả các thao tác trên HashMap đều được đồng bộ hóa, ví dụ:
+
+    ```java
+    Map m = Collections.synchronizedMap(new HashMap(...));
+    ```
+    Việc này nên được thực hiện ngay khi tạo HashMap để tránh việc vô tình truy cập không đồng bộ vào bản đồ sau này.
+
+- Iterator Fail-Fast: Các `iterator` trả về từ các phương thức "collection view" của HashMap (như keySet, entrySet, values) là **"fail-fast"**. Điều này có nghĩa là nếu `HashMap` bị thay đổi cấu trúc sau khi iterator được tạo, ngoại trừ thay đổi thông qua phương thức remove của chính iterator, iterator sẽ ném ra ngoại lệ `ConcurrentModificationException`. Cơ chế này giúp iterator phát hiện thay đổi đồng thời (concurrent modification) nhanh chóng và trả về lỗi một cách rõ ràng, thay vì dẫn đến hành vi không xác định hoặc khó đoán trước.
+
+- Phương thức `hashCode()`: Khi bạn thêm một cặp key-value vào HashMap bằng phương thức put(key, value), HashMap sẽ gọi phương thức `hashCode()` của đối tượng key để tính toán giá trị băm. Giá trị băm này sẽ xác định bucket (vị trí trong bảng băm) nơi cặp key-value sẽ được lưu trữ. Khi bạn truy xuất giá trị bằng phương thức get(key), HashMap cũng sử dụng giá trị băm của key để tìm đến đúng bucket chứa giá trị đó.
+
+- Phương thức `equals()`: Trong trường hợp xảy ra xung đột băm (hash collision), khi nhiều key khác nhau có cùng một giá trị băm và được lưu trữ trong cùng một bucket, HashMap sẽ sử dụng phương thức `equals()` để so sánh các key và tìm ra đúng giá trị tương ứng. Phương thức `equals()` đảm bảo rằng, ngay cả khi nhiều key có cùng giá trị băm, HashMap vẫn có thể tìm ra đúng cặp key-value.
