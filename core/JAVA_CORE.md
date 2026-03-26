@@ -38,7 +38,7 @@ Một trong những vấn đề nổi bật nhất là "Diamond Problem" (Vấn 
 
 Trong trường hợp này, lớp D sẽ có hai bản sao của tất cả các phương thức và biến từ lớp A (thông qua lớp B và lớp C). Nếu lớp A có một phương thức, lớp D sẽ không biết chính xác phải sử dụng phiên bản nào của phương thức đó - phiên bản từ B hay từ C? Điều này dẫn đến sự mơ hồ và xung đột.
 
-![alt text](image/diamond_problem.png)
+![alt text](../image/diamond_problem.png)
 
 **=> Giải pháp:** 
 
@@ -422,7 +422,7 @@ Map<K,V> đại diện cho một cấu trúc dữ liệu lưu trữ các cặp k
 
     - Hỗ trợ thao tác nhanh chóng: Các thao tác như chèn, xóa và tìm kiếm thường diễn ra nhanh chóng trong các triển khai `Map` như `HashMap` nhờ sử dụng mã băm (hashing).
 
-![alt text](image/class_interface_implement_map.png)
+![alt text](../image/class_interface_implement_map.png)
 
 #### Phương thức static interface Map.Entry<K,V>
 
