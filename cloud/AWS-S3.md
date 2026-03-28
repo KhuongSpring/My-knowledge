@@ -57,3 +57,12 @@ Trong S3 có 2 cách chính để mã hóa.
 
 ![alt text](../image/SSE-S3.png)
 
+---
+
+#### SSE-KMS trong AWS
+
+- Mã hóa sử dụng key quản lý bởi AWS Key Management Service (KMS).
+- Object được mã hóa phía server side.
+- Phải set header: "x-amz-server-side-encryption":"aws:kms".
+
+![alt text](../image/SSE-S3.png)
