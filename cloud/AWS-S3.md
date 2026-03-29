@@ -66,3 +66,15 @@ Trong S3 có 2 cách chính để mã hóa.
 - Phải set header: "x-amz-server-side-encryption":"aws:kms".
 
 ![alt text](../image/SSE-S3.png)
+
+---
+
+#### SSE-C trong AWS
+
+- Là server-side encryption sử dụng key cung cấp bởi khách hàng (AWS không quản lý key này).
+- **Phải dùng HTTPS**.
+- Encryption key phải được cung cấp trong HTTPS headers trong mỗi request.
+
+![alt text](../image/SSE-C.png)
+
+---
