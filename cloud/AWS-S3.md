@@ -78,3 +78,11 @@ Trong S3 có 2 cách chính để mã hóa.
 ![alt text](../image/SSE-C.png)
 
 ---
+
+#### Client Side Encryption trong AWS
+
+- Mã hóa phía client trước khi upload lên S3.
+- Sử dụng client libs chẳng hạn như: Amazon S3 Encryption Client.
+- Khi đọc dữ liệu trả về cần decrypt chúng.
+
+![alt text](../image/Client-Side-Encryption.png)
