@@ -86,3 +86,15 @@ Trong S3 có 2 cách chính để mã hóa.
 - Khi đọc dữ liệu trả về cần decrypt chúng.
 
 ![alt text](../image/Client-Side-Encryption.png)
+
+## Bảo mật trong S3
+
+### S3 Security trong AWS
+
+S3 security là quản lý quyền truy cập dữ liệu trong Amazon S3. Chúng ta có 3 phương thức để quản lý truy cập, đó là:
+
+- IAM policies: Cấp quyền truy cập cho user nhất định
+- ACLs:
+  - Bucket ALC: Quản lý cấp độ bucket
+  - Objects ALC: Quản lý cấp độ Objects
+- Bucket policies: Có thể add/deny quyền truy cập một cách linh hoạt được đinh nghĩa trong file JSON.
