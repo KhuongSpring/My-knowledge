@@ -93,8 +93,28 @@ Trong S3 có 2 cách chính để mã hóa.
 
 S3 security là quản lý quyền truy cập dữ liệu trong Amazon S3. Chúng ta có 3 phương thức để quản lý truy cập, đó là:
 
-- IAM policies: Cấp quyền truy cập cho user nhất định
+- IAM policies: Cấp quyền truy cập cho user nhất định.
 - ACLs:
-  - Bucket ALC: Quản lý cấp độ bucket
-  - Objects ALC: Quản lý cấp độ Objects
+  - Bucket ALC: Quản lý cấp độ bucket.
+  - Objects ALC: Quản lý cấp độ Objects.
 - Bucket policies: Có thể add/deny quyền truy cập một cách linh hoạt được đinh nghĩa trong file JSON.
+
+---
+
+### S3 Bucket Policies trong AWS
+
+![alt text](../image/s3-bucket-policies.png)
+
+- S3 bucket policies được định nghĩa dưới dạng file JSON.
+- Resource: Tài nguyên thực thi (Bucket hoặc Objects).
+- Effect: Allow hoặc Deny.
+- Principal: Account hay user được apply (* là tất cả user).
+- Action: Quền thực thi (GetObject, Put, Delete...).
+
+Ví dụ như trên hình vẽ đang định nghĩa policy: Tất cả user có thể đọc được tất cả object trong bucket foobucket.
+
+Sử dụng S3 bucket policies thường cho:
+
+- Cấp quyền truy cập đến bucket, object.
+- Bắt buộc object cần được mã hóa trước khi upload lên S3.
+- Cấp quyền truy cập cho account khác (cross account).
