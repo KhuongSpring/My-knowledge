@@ -119,11 +119,38 @@ Ví dụ như trên hình vẽ đang định nghĩa policy: Tất cả user có 
 - Bắt buộc object cần được mã hóa trước khi upload lên S3.
 - Cấp quyền truy cập cho account khác (cross account).
 
+---
+
 ### Block public access
 
 Mặc định khi tạo một bucket trên S3, Amazon sẽ block tất cả public access. Có nghĩa là khi bạn upload một file ảnh lên bucket đó, bạn sẽ không thể view file đó được luôn. Để có thể xem được file ảnh đó, bạn cần cấp quyền để có thể xem từ mọi nơi.
+
+---
 
 ### Bảo mật người dùng trong S3
 
 - **MFA Delete**: Chúng ta có thể anable MFA (multi factor authentication) khi muốn delete object. Việc này đảm bảo không phải ai cũng có thể xóa dữ liệu của bạn.
 - **Pre-Signed URLs**: Ví dụ video của bạn là premium (giới hạn cho những user đã trả phí). Khi tạo Pre-Signed URLs cho object đó, urls sẽ có expire.
+
+
+## Giới thiệu S3 Hosting, CORS
+
+### S3 Hosting trong AWS
+
+S3 hosting cho phép bạn có thể tạo 1 public website từ source code html, css, javascript của bạn. Bạn không cần config web server, dns... tất cả Amazon S3 đã làm cho bạn, việc cần làm là đẩy source code của bạn lên bucket.
+
+- URL website sẽ có format: `http://<bucket-name>.s3-website-<region>.amazonaws.com`
+- Cần cho phép bucket của bạn access public.
+
+---
+
+### S3 CORS trong AWS
+
+![alt text](../image/s3-cors.png)
+
+Như trên hình vẽ chúng ta có 2 bucket:
+
+- **HTML bucket**: Chứa các file html được host trên S3.
+- **Assets bucket**: Chứa các file ảnh của project.
+
+Khi gửi request đến HTML bucket, website cần request đến tiếp những file ảnh trong Assets bucket. Khi đó cần enable CORS trong Assets bucket để những request từ url: http://sample.s3-website-us-east-2.amazonaws.com có thể đọc được những file ảnh này.
