@@ -177,3 +177,13 @@ Khi gửi request đến HTML bucket, website cần request đến tiếp nhữn
 
 - Khi tạo một bucket trên S3, chúng ta có thể "force encryption" những object được upload lên. Điều này đảm bảo rằng những object được upload lên S3 đã được mã hóa.
 - Bạn có thể sử dụng "Default Encryption", khi enable option này lên, object sẽ được Amazon S3 mã hóa mặc định.
+
+## Giới thiệu S3 Access Logs, Replication và Pre-signed
+
+### S3 Access Logs trong AWS
+
+- S3 Access Logs lưu lại thông tin request đến S3 buckets của bạn.
+- Như hình vẽ dưới đây, những request đến "S3 Bucket", cho dù accept hay denied đều được ghi lại vào "Log Bucket".
+- Dữ liệu này có thể dùng để phân tích bằng những dịch vụ phân tích như Amazon Athena...
+
+![alt text](../image/s3-access-log.png)
