@@ -187,3 +187,30 @@ Khi gửi request đến HTML bucket, website cần request đến tiếp nhữn
 - Dữ liệu này có thể dùng để phân tích bằng những dịch vụ phân tích như Amazon Athena...
 
 ![alt text](../image/s3-access-log.png)
+
+---
+
+### S3 Replication (CRR & SRR) trong AWS
+
+- CRR: Cross Region Replication.
+- SRR: Same Region Replication.
+
+S3 Replication là tính năng sao chép các object giữa các vùng lưu trữ. Với S3 Replication, bạn có thể config Amazon S3 tự động sao chép S3 Object trên các Region khác nhau (Cross Region Replication), hoặc giữa các vùng lưu trữ trên cùng một Region (Same Region Replication).
+
+- Phải "Enable versioning" trong bucket source và destination.
+- Buckets có thể ở account khác nhau.
+- Việc copy là asynchronous.
+- Cần cung cấp IAM permission cần thiết tới S3.
+
+Lưu ý: 
+- Sau khi enable replica, bạn chỉ có thể copy những Object mới, còn objects cũ trước đó sẽ không được copy.
+- Copy không thể có tính "chaining". Có nghĩa nếu Bucket A copy sang Bucket B, Bucket B copy sang Bucket C. Thì khi tạo Object D sẽ không được copy sang Bucket C.
+
+---
+
+### S3 Pre-signed trong AWS
+
+Pre-signed URL là URL mà bạn có thể cung cấp cho người dùng của mình để cấp quyền truy cập tạm thời vào một đối tượng S3 cụ thể. Sử dụng URL, người dùng có thể đọc và ghi đối tượng (hoặc cập nhật đối tượng hiện có). URL chứa các thông số cụ thể do ứng dụng mà bạn cài đặt.
+
+- Mặc định Pre-signed URL có hiệu lực 3600s, bạn có thể thay đổi với CLI (--expires-in argument).
+- Khi đã quá thời gian hết hạn, người dùng không thể truy cập được đến Object chỉ định.
