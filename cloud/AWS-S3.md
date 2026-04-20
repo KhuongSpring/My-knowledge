@@ -214,3 +214,20 @@ Pre-signed URL là URL mà bạn có thể cung cấp cho người dùng của m
 
 - Mặc định Pre-signed URL có hiệu lực 3600s, bạn có thể thay đổi với CLI (--expires-in argument).
 - Khi đã quá thời gian hết hạn, người dùng không thể truy cập được đến Object chỉ định.
+
+## Giới thiệu S3 Storage Classes, Glacier
+
+### S3 Storage Classes trong AWS
+
+Amazon S3 cung cấp một loạt các lớp lưu trữ mà bạn có thể lựa chọn dựa trên các yêu cầu về quyền truy cập dữ liệu, khả năng phục hồi và chi phí tương ứng với khối lượng công việc. Các lớp lưu trữ S3 được xây dựng nhằm mục đích cung cấp khả năng lưu trữ với chi phí thấp nhất cho các kiểu truy cập khác nhau. Lớp lưu trữ S3 lý tưởng cho hầu hết mọi trường hợp sử dụng, bao gồm cả những trường hợp có nhu cầu hiệu năng cao, yêu cầu lưu trữ dữ liệu, kiểu truy cập không xác định hoặc hay thay đổi, hoặc dùng để lưu trữ.
+
+Các storage class hiện có bao gồm:
+
+- Standard
+- Standard-Infrequent Access (Standard-IA)
+- One Zone-Infrequent Access (One Zone-IA)
+- Intelligent-Tiering
+- Glacier
+- Glacier Deep Archive
+
+Mỗi storage class khác nhau có các thuộc tính khác nhau về: Chi phí, Độ khả dụng (availability), Độ bền (durability), Mức độ truy cập (frequency).
