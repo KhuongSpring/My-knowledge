@@ -42,3 +42,57 @@ Attributes:
   - Client-side encryption.
 - **Access Controls**: sử dụng IAM policies
 - **SQS Access Policies** (tương tự như S3 bucket policies)
+
+## Access Policy trong SQS Queue
+
+### Cross Account Access là gì
+
+![alt text](../image/cross-account-access.png)
+
+Khi Account 2 muốn lấy message từ SQS của Account 1 thì cần config Policy như sau:
+
+```json
+{
+  "Version": "2026-04-28",
+  "Statement": [
+    {
+      "Sid": "Queue1_AllActions",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": ["222222222222"]
+      },
+      "Action": "sqs:ReceiveMessage",
+      "Resource": "arn:aws:sqs:us-east-1:111111111111"
+    }
+  ]
+}
+```
+
+### Publish S3 Event Notifications
+
+![alt text](../image/publish-s3-event-notification.png)
+
+```json
+{
+  "Version": "2026-04-28",
+  "Statement": [
+    {
+      "Sid": "example-statement-ID",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "*"
+      },
+      "Action": ["SQS:SendMessage"],
+      "Resource": "arn:aws:sqs:<region>:<account-id></account-id>:queue1",
+      "Condition": {
+        "ArnLike": {
+          "aws:SourceArn": "arn:aws:s3:*:*:bucket1"
+        },
+        "StringEquals": {
+          "aws:SourceAccount": "<bucket-owner-account-id>"
+        }
+      }
+    }
+  ]
+}
+```
