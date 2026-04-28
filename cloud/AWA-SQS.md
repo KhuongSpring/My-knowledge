@@ -2,6 +2,25 @@
 
 ![Status](https://img.shields.io/badge/AWS_SQS-orange) ![Topic](https://img.shields.io/badge/Topic-Learn-blue)
 
+## Mục lục
+
+- [AWS SQS](#aws-sqs)
+  - [Giới thiệu Amazon SQS - Standard Queues](#giới-thiệu-amazon-sqs---standard-queues)
+    - [Amazon SQS là gì](#amazon-sqs-là-gì)
+    - [Producing message trong SQS](#producing-message-trong-sqs)
+    - [Consuming message trong SQS](#consuming-message-trong-sqs)
+    - [SQS Multiple EC2 consumer](#sqs-multiple-ec2-consumer)
+    - [Bảo mật trong SQS](#bảo-mật-trong-sqs)
+  - [Access Policy trong SQS Queue](#access-policy-trong-sqs-queue)
+    - [Cross Account Access là gì](#cross-account-access-là-gì)
+    - [Publish S3 Event Notifications](#publish-s3-event-notifications)
+  - [Những thuộc tính của SQS Queue](#những-thuộc-tính-của-sqs-queue)
+    - [SQS Message Visibility Timeout là gì](#sqs-message-visibility-timeout-là-gì)
+    - [SQS Dead Letter Queue là gì](#sqs-dead-letter-queue-là-gì)
+    - [SQS Delay Queue là gì](#sqs-delay-queue-là-gì)
+    - [SQS Long Polling là gì](#sqs-long-polling-là-gì)
+    - [SQS Request-Response Pattern (Virtual queues) là gì](#sqs-request-response-pattern-virtual-queues-là-gì)
+
 ## Giới thiệu Amazon SQS - Standard Queues
 
 ### Amazon SQS là gì
@@ -15,11 +34,15 @@ Attributes:
 - Độ trễ thấp khi gửi và nhận message.
 - Mỗi message dung lượng tối đa là 256KB.
 
+---
+
 ### Producing message trong SQS
 
 - Sử dụng SDK để tạo mới message và gửi message đó đến SQS (SendMessage API).
 - Message sẽ nằm trong SQS cho đến khi consumer nhận, xử lý và xóa nó đi khỏi queue.
 - Message có thể nằm trong SQS 4 ngày và tối đa là 14 ngày.
+
+---
 
 ### Consuming message trong SQS
 
@@ -28,11 +51,15 @@ Attributes:
 - Xử lý message nhận được.
 - Xóa message sử dụng DeleteMessage API.
 
+---
+
 ### SQS Multiple EC2 consumer
 
 - Consumers nhận message parallel.
 - Mỗi message chỉ được process một lần duy nhất.
 - Consumers sẽ xóa message sau khi message đó được process.
+
+---
 
 ### Bảo mật trong SQS
 
@@ -67,6 +94,8 @@ Khi Account 2 muốn lấy message từ SQS của Account 1 thì cần config Po
   ]
 }
 ```
+
+---
 
 ### Publish S3 Event Notifications
 
@@ -107,6 +136,8 @@ Khi Account 2 muốn lấy message từ SQS của Account 1 thì cần config Po
 
 ![alt text](../image/sqs-message-visibility-timeout.png)
 
+---
+
 ### SQS Dead Letter Queue là gì
 
 - Mỗi message sẽ có một "Visibility Timeout" sau khi được polled, trong thời gian đó, message được process. Tại đây, sẽ có hai trường hợp xảy ra:
@@ -118,16 +149,22 @@ Khi Account 2 muốn lấy message từ SQS của Account 1 thì cần config Po
 
 ![alt text](../image/sqs-dead-letter-queue.png)
 
+---
+
 ### SQS Delay Queue là gì
 
 - Mặc định thời gian delay là 0s (message được nhận ngay lập tức).
 - Chúng ta có thể config thời gian delay để nhận được message (tối đa là 15 phút).
+
+---
 
 ### SQS Long Polling là gì
 
 - Mục đích của Long Polling là giảm thiểu những response empty từ phía Queue.
 - Khi có một request nhận message, nếu trong Queue không có message nào, SQS sẽ chờ đến khi có message để response lại.
 - **WaitTimeSeconds** có thể từ 1s-20s.
+
+---
 
 ### SQS Request-Response Pattern (Virtual queues) là gì
 
