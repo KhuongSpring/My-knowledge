@@ -2,6 +2,17 @@
 
 ![Status](https://img.shields.io/badge/AWS_LAMBDA-orange) ![Topic](https://img.shields.io/badge/Topic-Learn-blue)
 
+## Mục lục
+
+- [Giới thiệu Lambda](#giới-thiệu-lambda)
+  - [Lambda là gì](#lambda-là-gì)
+  - [Lợi ích của Lambda](#lợi-ích-của-lambda)
+  - [Lambda hoạt động như thế nào](#lambda-hoạt-động-như-thế-nào)
+  - [Kiến trúc AWS Lambda](#kiến-trúc-aws-lambda)
+  - [Giới hạn & Tinh chỉnh hiệu suất AWS Lambda](#giới-hạn--tinh-chỉnh-hiệu-suất-aws-lambda)
+  - [Ứng dụng thực tế của AWS Lambda](#ứng-dụng-thực-tế-của-aws-lambda)
+  - [Lambda@Edge là gì](#lambdaedge-là-gì)
+
 ## Giới thiệu Lambda
 
 ### Lambda là gì
