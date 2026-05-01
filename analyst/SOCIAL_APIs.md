@@ -53,3 +53,35 @@ Lưu ý: API này chỉ hỗ trợ tài khoản Instagram doanh nghiệp và ng�
 #### Bước 4: Lấy ID tài khoản Instagram doanh nghiệp
 
 #### Bước 5: Thực hiện các cuộc gọi API đã xác thực
+
+## TikTok API for business
+
+### Tóm tắt chung
+TikTok API for Business là bộ API do TikTok cung cấp, giúp nhà phát triển tích hợp với hệ sinh thái TikTok để quản lý quảng cáo, tài khoản TikTok và làm việc với creator/influencer.
+
+### Các tính năng chính
+- **TikTok Login Kit**: Cho phép đăng nhập các ứng dụng bên thứ 3 bằng tài khoản TikTok.
+- **TikTok Share to TikTok SDK**: Cho phép chia sẻ nội dung từ các ứng dụng khác trực tiếp lên TikTok.
+- **TikTok API for Developers** bao gồm 3 nhóm API chính:
+- **Marketing API**
+  Dùng để quản lý và tối ưu chiến dịch quảng cáo TikTok: tạo quảng cáo, theo dõi hiệu suất, tự động hóa vận hành và mở rộng quy mô marketing.
+- **Organic API**
+  Hỗ trợ phân tích và tối ưu nội dung organic (không trả phí), đánh giá hiệu quả video, tìm cơ hội hợp tác creator và quyết định nội dung nào nên chạy quảng cáo.
+- **Business Messaging API**
+  Cho phép xây dựng hệ thống nhắn tin với người dùng trên TikTok theo thời gian thực để tăng tương tác khách hàng và hỗ trợ chiến dịch marketing/quảng cáo.
+
+### Cách sử dụng
+
+#### Bước 1: Truy cập Cổng Thông Tin Dành Cho Nhà Phát Triển Của TikTok [TikTok for Developers](https://developers.tiktok.com/)
+
+#### Bước 2: Đăng ký ứng dụng
+Bạn cần tạo một ứng dụng trên cổng thông tin nhà phát triển và mô tả rõ mục đích sử dụng API
+
+#### Bước 3: Yêu cầu quyền truy cập
+Chọn các quyền (scopes) phù hợp với nhu cầu của ứng dụng (ví dụ: quyền đọc dữ liệu người dùng, quyền đăng video, v.v.).
+
+#### Bước 4: Chờ xét duyệt
+TikTok sẽ xem xét yêu cầu của bạn. Quá trình này có thể mất thời gian và đòi hỏi ứng dụng của bạn phải tuân thủ các chính sách của TikTok.
+
+#### Bước 5: Tích hợp và Phát triển
+Sau khi được cấp quyền, bạn có thể bắt đầu tích hợp API vào hệ thống của mình bằng cách sử dụng access tokens và API endpoints được cung cấp.
