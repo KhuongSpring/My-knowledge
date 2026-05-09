@@ -85,3 +85,66 @@ TikTok sẽ xem xét yêu cầu của bạn. Quá trình này có thể mất th
 
 #### Bước 5: Tích hợp và Phát triển
 Sau khi được cấp quyền, bạn có thể bắt đầu tích hợp API vào hệ thống của mình bằng cách sử dụng access tokens và API endpoints được cung cấp.
+
+## Astream
+
+### Tóm tắt chung
+Astream là một nền tảng/phần mềm phục vụ Influencer Marketing và Social Media Analytics.
+Nói đơn giản, Astream giúp doanh nghiệp:
+
+- Tìm kiếm influencer/KOL phù hợp.
+- Phân tích dữ liệu tài khoản social.
+- Quản lý chiến dịch booking KOL.
+- Đo hiệu quả marketing trên social media.
+
+### Các tính năng chính
+#### Tìm kiếm & phân tích influencer
+Có thể lọc influencer theo:
+
+- Số follower
+- Engagement
+- Giới tính/độ tuổi follower
+- Lĩnh vực quan tâm
+- Brand affinity
+- Location
+- Hashtag performance
+
+=> Giúp chọn KOL phù hợp với chiến dịch.
+
+#### Social Analytics
+Phân tích:
+
+- Lượt like/comment/share
+- Engagement rate
+- Tăng trưởng follower
+- Audience insight
+- Hiệu quả bài đăng
+
+#### Campaign Management
+Quản lý:
+
+- Danh sách influencer
+- Gửi DM/email hàng loạt
+- Trạng thái campaign
+- Bài đăng PR
+- Report hiệu quả
+
+#### Reporting
+Tự động tạo:
+
+- Dashboard
+- Biểu đồ
+- Campaign report
+
+### Bản chất
+Astream thực chất là một hệ thống SaaS xây dựng trên các social APIs như:
+
+- Instagram Graph API
+- TikTok API for Business
+- YouTube API
+- X API
+
+Tức là:
+
+- Instagram/TikTok API = API gốc do platform cung cấp.
+- Astream = ứng dụng/business platform dùng các API đó để làm influencer marketing & analytics.
