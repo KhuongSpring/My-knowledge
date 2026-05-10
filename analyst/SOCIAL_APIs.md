@@ -4,12 +4,29 @@
 
 ## Mục lục
 
+* [Instagram Graph API](#instagram-graph-api)
+    - [Tóm tắt chung](#tóm-tắt-chung-instagram)
+    - [Các tính năng chính](#các-tính-năng-chính-instagram)
+    - [Cách sử dụng](#cách-sử-dụng-instagram)
+* [TikTok API for Business](#tiktok-api-for-business)
+    - [Tóm tắt chung](#tóm-tắt-chung-tiktok)
+    - [Các tính năng chính](#các-tính-năng-chính-tiktok)
+    - [Cách sử dụng](#cách-sử-dụng-tiktok)
+* [Astream](#astream)
+    - [Tóm tắt chung](#tóm-tắt-chung-astream)
+    - [Các tính năng chính](#các-tính-năng-chính-astream)
+    - [Bản chất](#bản-chất-astream)
+
 ## Instagram Graph API
+
+<div id="tóm-tắt-chung-instagram"></div>
 
 ### Tóm tắt chung
 - Instagram Graph API cho phép các nhà phát triển quản lý tài khoản Instagram doanh nghiệp (business) và người sáng tạo nội dung (creator).
 - API này sử dụng Facebook Login OAuth 2.0.
 - Các endpoints dựa trên GraphQL để truy xuất dữ liệu về người dùng, bài đăng, bình luận, và nhiều hơn nữa.
+
+<div id="các-tính-năng-chính-instagram"></div>
 
 ### Các tính năng chính
 - Xuất bản nội dung (ảnh, video, reels, ...).
@@ -34,6 +51,8 @@ Lưu ý: API này chỉ hỗ trợ tài khoản Instagram doanh nghiệp và ng�
 
 ### API sử dụng endpoint: https://graph.facebook.com/v18.0/
 
+<div id="cách-sử-dụng-instagram"></div>
+
 ### Cách sử dụng
 
 #### Bước 1: Tạo tài khoản nhà phát triển Facebook
@@ -56,8 +75,12 @@ Lưu ý: API này chỉ hỗ trợ tài khoản Instagram doanh nghiệp và ng�
 
 ## TikTok API for business
 
+<div id="tóm-tắt-chung-tiktok"></div>
+
 ### Tóm tắt chung
 TikTok API for Business là bộ API do TikTok cung cấp, giúp nhà phát triển tích hợp với hệ sinh thái TikTok để quản lý quảng cáo, tài khoản TikTok và làm việc với creator/influencer.
+
+<div id="các-tính-năng-chính-tiktok"></div>
 
 ### Các tính năng chính
 - **TikTok Login Kit**: Cho phép đăng nhập các ứng dụng bên thứ 3 bằng tài khoản TikTok.
@@ -69,6 +92,8 @@ TikTok API for Business là bộ API do TikTok cung cấp, giúp nhà phát tri�
   Hỗ trợ phân tích và tối ưu nội dung organic (không trả phí), đánh giá hiệu quả video, tìm cơ hội hợp tác creator và quyết định nội dung nào nên chạy quảng cáo.
 - **Business Messaging API**
   Cho phép xây dựng hệ thống nhắn tin với người dùng trên TikTok theo thời gian thực để tăng tương tác khách hàng và hỗ trợ chiến dịch marketing/quảng cáo.
+
+<div id="cách-sử-dụng-tiktok"></div>
 
 ### Cách sử dụng
 
@@ -88,6 +113,8 @@ Sau khi được cấp quyền, bạn có thể bắt đầu tích hợp API và
 
 ## Astream
 
+<div id="tóm-tắt-chung-astream"></div>
+
 ### Tóm tắt chung
 Astream là một nền tảng/phần mềm phục vụ Influencer Marketing và Social Media Analytics.
 Nói đơn giản, Astream giúp doanh nghiệp:
@@ -96,6 +123,8 @@ Nói đơn giản, Astream giúp doanh nghiệp:
 - Phân tích dữ liệu tài khoản social.
 - Quản lý chiến dịch booking KOL.
 - Đo hiệu quả marketing trên social media.
+
+<div id="các-tính-năng-chính-astream"></div>
 
 ### Các tính năng chính
 #### Tìm kiếm & phân tích influencer
@@ -135,6 +164,8 @@ Tự động tạo:
 - Dashboard
 - Biểu đồ
 - Campaign report
+
+<div id="bản-chất-astream"></div>
 
 ### Bản chất
 Astream thực chất là một hệ thống SaaS xây dựng trên các social APIs như:
