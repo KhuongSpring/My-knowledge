@@ -88,3 +88,28 @@ BFF có thể trở thành điểm tắc nghẽn nếu phải xử lý quá nhi�
 | Cách tiếp cận | **Tập trung (Centralized):** tất cả các yêu cầu được gửi tới một điểm duy nhất (API Gateway), sau đó được định tuyến đến các dịch vụ backend phù hợp. | **Phân tán (Distributed):** mỗi loại frontend có một backend riêng. Tất cả BFF tương tác trực tiếp với các microservice hoặc thông qua API Gateway tùy theo kiến trúc. |
 | Logic nghiệp vụ | API Gateway thường không xử lý nhiều logic nghiệp vụ phức tạp. Nó chủ yếu tập trung vào routing và các chức năng cross-cutting. | BFF thường tích hợp logic nghiệp vụ chuyên biệt cho từng frontend, định dạng lại dữ liệu và xử lý các yêu cầu phức tạp. |
 | Quản lý và bảo trì | Một lớp gateway duy nhất dễ quản lý, nhưng có thể trở thành điểm tập trung duy nhất có nguy cơ gây tắc nghẽn. | Mỗi BFF yêu cầu bảo trì riêng, tăng khối lượng quản lý nhưng lại linh hoạt hơn trong phát triển tính năng cho từng giao diện. |
+
+## Vậy khi nào nên sử dụng API Gateway và BFF?
+
+### API Gateway
+
+- Khi bạn chỉ cần một điểm truy cập duy nhất cho tất cả các microservice.
+- Khi bạn cần các chức năng chung cho tất cả các dịch vụ như xác thực, logs, rate limiting.
+- Khi hệ thống microservices của bạn phức tạp và cần tách biệt hoàn toàn logic routing và liên lạc với các dịch vụ backend.
+
+### BFF
+
+- Khi bạn xây dựng ứng dụng đa nền tảng (mobile, web, IoT) với nhu cầu xử lý và dữ liệu khác nhau.
+- Khi bạn muốn tối ưu hóa trải nghiệm người dùng và hiệu suất cho từng nền tảng cụ thể.
+- Khi bạn có logic nghiệp vụ phức tạp chỉ dành riêng cho một frontend.
+
+### Nhưng trong nhiều trường hợp, có thể lựa chọn kết hợp sử dụng cả API Gateway và BFF để tận dụng ưu điểm của cả hai
+
+- API Gateway có thể đứng trước, quản lý luồng truy cập, xác thực và routing đến các BFF hoặc trực tiếp đến microservice.
+- BFF ở phía sau Gateway, hoạt động như một lớp service đặc biệt phục vụ riêng cho các frontend.
+
+Cách tiếp cận này giúp duy trì sự nhất quán trong việc xác thực và bảo mật (thông qua API Gateway), đồng thời cho phép từng frontend có sự tùy chỉnh backend riêng (BFF).
+
+## Kết luận
+
+Áp dụng kiến trúc Backend for Frontend (BFF) có thể mang lại nhiều lợi ích cho dự án của bạn, từ việc tối ưu hóa trải nghiệm người dùng đến tăng tốc độ phát triển và dễ dàng quản lý. Mặc dù có một số thách thức, nhưng với kế hoạch và chiến lược đúng đắn, bạn có thể triển khai BFF.
