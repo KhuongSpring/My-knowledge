@@ -4,6 +4,26 @@
 
 ## Mục lục
 
+- [BFF là gì?](#bff-là-gì)
+- [Tại sao nên sử dụng BFF?](#tại-sao-nên-sử-dụng-bff)
+  - [Tối ưu, tăng trải nghiệm người dùng](#tối-ưu-tăng-trải-nghiệm-người-dùng)
+  - [Tăng tốc độ phát triển](#tăng-tốc-độ-phát-triển)
+  - [Dễ dàng quản lý logic riêng biệt](#dễ-dàng-quản-lý-logic-riêng-biệt)
+- [BFF hoạt động như thế nào?](#bff-hoạt-động-như-thế-nào)
+- [Khi nào nên sử dụng BFF?](#khi-nào-nên-sử-dụng-bff)
+  - [Kiến trúc Microservices](#kiến-trúc-microservices)
+  - [Cần phải tối ưu hóa hiệu suất của ứng dụng](#cần-phải-tối-ưu-hóa-hiệu-suất-của-ứng-dụng)
+- [Hạn chế khi áp dụng BFF](#hạn-chế-khi-áp-dụng-bff)
+  - [Đồng bộ dữ liệu](#đồng-bộ-dữ-liệu)
+  - [Tăng khối lượng bảo trì](#tăng-khối-lượng-bảo-trì)
+  - [Hiệu suất của BFF](#hiệu-suất-của-bff)
+- [So sánh API Gateway và BFF](#so-sánh-api-gateway-và-bff)
+- [Vậy khi nào nên sử dụng API Gateway và BFF?](#vậy-khi-nào-nên-sử-dụng-api-gateway-và-bff)
+  - [API Gateway](#api-gateway)
+  - [BFF](#bff)
+  - [Nhưng trong nhiều trường hợp, có thể lựa chọn kết hợp sử dụng cả API Gateway và BFF để tận dụng ưu điểm của cả hai](#nhưng-trong-nhiều-trường-hợp-có-thể-lựa-chọn-kết-hợp-sử-dụng-cả-api-gateway-và-bff-để-tận-dụng-ưu-điểm-của-cả-hai)
+- [Kết luận](#kết-luận)
+
 ## BFF là gì?
 
 Backend for Frontend (BFF) là kiến trúc trong đó bạn tạo ra các backend riêng biệt cho từng loại frontend cụ thể. Thay vì sử dụng một API chung cho tất cả các giao diện người dùng, bạn xây dựng các backend được tùy chỉnh để đáp ứng nhu cầu riêng của từng loại giao diện.
