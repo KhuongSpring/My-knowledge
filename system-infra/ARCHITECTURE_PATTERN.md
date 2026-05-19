@@ -146,3 +146,37 @@ Hãy để ý trong luồng tin nhắn, khi xử lý xong event, event processor
 - **Xử lý logic phức tạp giữa các thành phần**: Nếu hệ thống yêu cầu xử lý logic phức tạp, biến đổi dữ liệu, hoặc điều phối quy trình làm việc giữa các nhà sản xuất và người tiêu dùng, broker topology có thể không đủ linh hoạt. mediator topology thường phù hợp hơn trong trường hợp này.
 - **Tích hợp và chuẩn hóa dữ liệu từ nhiều nguồn**: Trong trường hợp cần tích hợp dữ liệu từ nhiều nguồn khác nhau với các định dạng và giao thức không đồng nhất, Broker Topology có thể không cung cấp đủ khả năng xử lý và chuẩn hóa dữ liệu cần thiết.
 - **Cần kiểm soát trung tâm và quản lý workflow**: Nếu hệ thống cần một mức độ kiểm soát trung tâm cao đối với luồng sự kiện và quản lý luồng, Broker topology có thể không phù hợp. Mediator Topology, với khả năng điều phối và quản lý trung tâm, có thể là lựa chọn tốt hơn trong trường hợp này.
+
+#### 2.2 Meditator topology
+
+Trong Meditator topology có một thành phần trung gian, thường được gọi là "mediator", được sử dụng để điều phối và quản lý luồng sự kiện giữa các service hoặc component khác nhau trong hệ thống.
+
+![alt text](../image/meditator_topology.png)
+
+##### 2.2.1 Các thành phần chính của Meditator topology bao gồm:
+
+- **Initiating event**: sự kiện ban đầu bắt đầu toàn bộ luồng sự kiện
+- **Event queue**: lưu trữ các sự kiện ban đầu, đảm bảo chúng không bị mất mát trong quá trình xử lý. Queue giúp xử lý các sự kiện tuần tự, đảm bảo tính nhất quán trước khi event được chuyển tới Meditator.
+- **Event meditator**: nơi điều phối và quản lý luồng sự kiện, là trung tâm của mô hình Meditator.
+- **Event channel**: tương tự broker topology
+- **Event processor**: tương tự broker topology
+
+##### 2.2.2 Cách hoạt động của Meditator topology được mô tả thông qua ví dụ về hệ thống bán lẻ sau:
+
+![alt text](../image/meditator_topology_example.gif)
+
+##### 2.2.3 Trường hợp nên dùng meditator topology
+
+- **Cần quản lý tập trung**: Phù hợp với các hệ thống cần quản lý tập trung, cần sự tích hợp chặt chẽ để đảm bảo các sự kiện được điều phối và xử lý theo đúng trình tự. Nếu hệ thống yêu cầu kiểm soát chặt chẽ về quyền truy cập và bảo mật dữ liệu, mediator topology có thể cung cấp một lớp kiểm soát bổ sung.
+- **Cần xử lý logic phức tạp**: Khi hệ thống yêu cầu xử lý logic nâng cao hoặc biến đổi sự kiện trước khi chúng được gửi đến người tiêu dùng cuối cùng. Mediator có thể thực hiện các tác vụ như lọc, biến đổi dữ liệu, hoặc ánh xạ sự kiện.
+- **Tích hợp hệ thống đa dạng**: Khi cần tích hợp nhiều hệ thống khác nhau với các giao thức và định dạng tin nhắn không đồng nhất, mediator topology cho phép biến đổi và chuẩn hóa dữ liệu giữa các hệ thống.
+
+##### 2.2.4 Trường hợp không nên dùng meditator topology
+
+- **Yêu cầu hiệu suất cao và độ trễ thấp**: Mediator Topology có thể tạo ra độ trễ bổ sung do xử lý trung gian. Trong các hệ thống cần xử lý tin nhắn cực kỳ nhanh và độ trễ thấp, việc thêm một mediator có thể không phù hợp.
+- **Cần tính đơn giản và dễ mở rộng**: Nếu mục tiêu là xây dựng một hệ thống đơn giản, dễ hiểu và dễ mở rộng, việc thêm một mediator có thể làm tăng độ phức tạp không cần thiết.
+- **Tách biệt và độc lập giữa các thành phần**: Trong các hệ thống yêu cầu mức độ tách biệt cao giữa các thành phần, việc sử dụng mediator có thể tạo ra sự phụ thuộc trung tâm, làm giảm khả năng tách biệt và độc lập của các thành phần.
+- **Khả năng chịu lỗi và phục hồi**: Mediator trở thành điểm trung tâm có thể gây ra sự cố. Nếu mediator gặp sự cố, toàn bộ hệ thống có thể bị ảnh hưởng. Trong các hệ thống cần khả năng chịu lỗi cao, việc phụ thuộc vào một điểm trung tâm có thể không phải là lựa chọn tốt nhất.
+
+### 3. Xử lý mất dữ liệu trong EDA
+
