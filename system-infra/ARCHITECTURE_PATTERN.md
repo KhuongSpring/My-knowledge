@@ -93,3 +93,56 @@ Trong phân vùng theo domain (*Domain partitioned*), các component của hệ 
 - Ngoài ra, có cách phân loại khác dựa trên cách chia cấu trúc của hệ thống bao gồm *phân vùng kỹ thuật* và *phân vùng theo domain*.
 - Mỗi loại kiến trúc phần mềm đều có ưu điểm và nhược điểm riêng, do vậy, tuỳ yêu cầu của bài toán, chúng ta cần cân nhắc lựa chọn cho phù hợp.
 
+## Phần 2: Kiến trúc hướng sự kiện (Event-driven-architecture)
+
+### 1. Kiến trúc hướng sự kiện là gì?
+
+**Kiến trúc hướng sự kiện** (*Event-driven architecture - EDA*) là một mô hình kiến trúc phần mềm trong đó các thành phần hoặc dịch vụ của hệ thống giao tiếp với nhau chủ yếu thông qua việc sản xuất và tiêu thụ các sự kiện.
+
+Các "sự kiện" (event) này có thể là các hành động người dùng, cập nhật dữ liệu, hoặc các thông báo từ các hệ thống khác. EDA giúp tạo ra các hệ thống linh hoạt, mở rộng và dễ tích hợp.
+
+### 2. Phân loại kiến trúc hướng sự kiện
+
+EDA được phân loại dựa trên cấu trúc liên kết (topology) giữa các component trong hệ thống với nhau, bao gồm hai mô hình phổ biến là **Broker topology** và **Mediator topology**.
+
+Giờ chúng ta sẽ cùng tìm hiểu về hai mô hình này cũng như các trường hợp nên và không nên sử dụng chúng.
+
+#### 2.1 Broker topology
+
+Trong Broker topology, luồng tin nhắn sẽ phân phối đều tới các event processor qua messsage broker mà không cần tới một trung tâm điều phối event.
+
+![alt text](../image/broker_topology.png)
+
+##### 2.1.1 Các thành phần chính của broker topology
+
+Các thành phần chính của Broker topology bao gồm:
+
+- **Initiating event**: sự kiện ban đầu bắt đầu toàn bộ luồng sự kiện
+- **Event channel**: được sử dụng để lưu trữ các sự kiện được tạo ra và phân phối các sự kiện đó đến một service phản hồi chúng. Event channel có thể ở dạng topic hoặc queue.
+- **Event broker**: chứa các event channel tham gia vào một luồng sự kiện.
+- **Event processor**: service chịu trách nhiệm xử lý sự kiện
+- **Processing event**: là sự kiện được tạo khi trạng thái của một số service thay đổi và gửi thông báo cho phần còn lại của hệ thống về sự thay đổi trạng thái đó. Event này được gửi theo cơ chế *fire-and-forget broadcasting*, tức là gửi và sau đó không cần xác nhận việc gửi có thành công hay không.
+
+##### 2.1.2 Luồng tin nhắn trong broker topology
+
+Luồng tin nhắn trong broker topology hoạt động theo thứ tự sau:
+
+- Một initiating event được gửi tới một event channel nằm trong event broker để xử lý.
+- Một event processor lấy event đó về từ event channel để xử lý và thực hiện nhiệm vụ cụ thể liên quan đến việc xử lý event đó.
+- Khi xử lý xong, event processor gửi một processing event tới event channel nhằm thông báo rằng event đã xử lý xong.
+- Các event processor khác sẽ lắng nghe processing event này và phản ứng lại bằng cách tạo ra event processing khác. Quá trình này lặp lại cho tới khi event processor cuối xử lý xong.
+
+Hãy để ý trong luồng tin nhắn, khi xử lý xong event, event processor sẽ luôn gửi tới broker một processing event để thông báo đã xử lý xong dù chúng có được tiêu thụ hay không. Nếu một event không có ai lắng nghe thì nó sẽ bị bỏ qua.
+
+Điều này tưởng chừng là lãng phí tài nguyên, tuy nhiên, trong thực tế, đây là thiết kế đảm bảo khả năng mở rộng hệ thống. Lý do là nếu hệ thống phát sinh nghiệp vụ mới, cần tới event này thì bạn chỉ cần cho Event Processor lắng nghe thay vì phải sửa logic trong code.
+
+##### 2.1.3 Trường hợp nên dùng broker topology
+
+- **Cần giảm sự phụ thuộc lẫn nhau (loose coupling)**: Đối với các hệ thống mà các thành phần cần hoạt động độc lập, không cần biết về nhau, broker topology cung cấp khả năng tách rời cần thiết.
+- **Định tuyến đơn giản**: các event processor giao tiếp với nhau bằng event mà không cần thông qua một trung gian quản lý nào nên phù hợp với hệ thống có định tuyến đơn giản, không cần đảm bảo đúng trình tự.
+
+##### 2.1.4 Trường hợp không nên dùng broker topology
+
+- **Xử lý logic phức tạp giữa các thành phần**: Nếu hệ thống yêu cầu xử lý logic phức tạp, biến đổi dữ liệu, hoặc điều phối quy trình làm việc giữa các nhà sản xuất và người tiêu dùng, broker topology có thể không đủ linh hoạt. mediator topology thường phù hợp hơn trong trường hợp này.
+- **Tích hợp và chuẩn hóa dữ liệu từ nhiều nguồn**: Trong trường hợp cần tích hợp dữ liệu từ nhiều nguồn khác nhau với các định dạng và giao thức không đồng nhất, Broker Topology có thể không cung cấp đủ khả năng xử lý và chuẩn hóa dữ liệu cần thiết.
+- **Cần kiểm soát trung tâm và quản lý workflow**: Nếu hệ thống cần một mức độ kiểm soát trung tâm cao đối với luồng sự kiện và quản lý luồng, Broker topology có thể không phù hợp. Mediator Topology, với khả năng điều phối và quản lý trung tâm, có thể là lựa chọn tốt hơn trong trường hợp này.
