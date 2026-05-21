@@ -180,3 +180,18 @@ Trong Meditator topology có một thành phần trung gian, thường được 
 
 ### 3. Xử lý mất dữ liệu trong EDA
 
+![alt text](../image/eda_lost_data.png)
+
+Một trong những vấn đề trọng tâm trong EDA là *mất dữ liệu*. Lỗi này có thể xảy ra ở các thời điểm sau:
+
+- **Event processor đẩy event vào Event channel**: Broker lỗi khiến cho dữ liệu bị mất.
+- **Event channel đẩy event tới Event Processor**: Event processor lỗi trước khi nhận được event, gây mất dữ liệu.
+- **Event processor lưu trữ dữ liệu đã xử lý vào database**: dữ liệu bị lỗi không lưu vào database được hoặc database bị lỗi không nhận được dữ liệu.
+
+Việc mất dữ liệu ở các thời điểm có thể giải quyết bằng các biện pháp sau:
+
+![alt text](../image/eda_lost_data_solution.png)
+
+- **Synchronous send (Gửi đồng bộ)**: Triển khai Persisted message queues hỗ trợ tính năng guaranteed delivery. Khi nhận một event, broker sẽ lưu dữ liệu cả ở memory và ở kho chứa vật lý như filesystem hoặc database. Nhờ vậy, nếu broker bị lỗi, khi trở lại hoạt động bình thường, nó hoàn toàn có thể lấy event ở kho chứa vật lý để xử lý tiếp.
+- **Client acknowledge mode (Chế độ xác nhận)**: Khi một event được lấy ra từ queue, nó sẽ bị xoá khỏi queue. Tuy nhiên, với chế độ client acknowledge mode, event sẽ không bị xoá khỏi queue và được gắn client ID, đánh dấu nó đã được tiêu thụ, nhằm không consumer nào có thể đọc nó. Nếu Event processor A bị lỗi khi đang xử lý event X, thì X vẫn còn tồn tại trong queue, đảm bảo dữ liệu không bị mất.
+- **Last participant support (LPS)**: Việc data lỗi không lưu được vào database có thể xử lý bằng cách tận dụng ACID. Nếu có lỗi xảy ra khi transaction đã được commit thì dữ liệu sẽ được. Các event được xác nhận sau khi data được lưu thành công vào database.
