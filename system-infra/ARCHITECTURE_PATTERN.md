@@ -2,6 +2,29 @@
 
 ## Mục lục
 
+- [Phần 1: Các cách phân loại kiến trúc phần mềm](#phần-1-các-cách-phân-loại-kiến-trúc-phần-mềm)
+  - [1. Cách phân loại phổ biến](#1-cách-phân-loại-phổ-biến)
+    - [1.1 Kiến trúc nguyên khối (Monolithic Architecture)](#11-kiến-trúc-nguyên-khối-monolithic-architecture)
+    - [1.2 Kiến trúc phân tán (Distributed Architecture)](#12-kiến-trúc-phân-tán-distributed-architecture)
+  - [2. Cách phân loại khác](#2-cách-phân-loại-khác)
+    - [2.1 Phân vùng kỹ thuật (Technically partitioned)](#21-phân-vùng-kỹ-thuật-technically-partitioned)
+    - [2.2 Phân vùng theo domain (Domain partitioned)](#22-phân-vùng-theo-domain-domain-partitioned)
+  - [3. Tổng kết](#3-tổng-kết)
+- [Phần 2: Kiến trúc hướng sự kiện (Event-driven-architecture)](#phần-2-kiến-trúc-hướng-sự-kiện-event-driven-architecture)
+  - [1. Kiến trúc hướng sự kiện là gì?](#1-kiến-trúc-hướng-sự-kiện-là-gì)
+  - [2. Phân loại kiến trúc hướng sự kiện](#2-phân-loại-kiến-trúc-hướng-sự-kiện)
+    - [2.1 Broker topology](#21-broker-topology)
+      - [2.1.1 Các thành phần chính của broker topology](#211-các-thành-phần-chính-của-broker-topology)
+      - [2.1.2 Luồng tin nhắn trong broker topology](#212-luồng-tin-nhắn-trong-broker-topology)
+      - [2.1.3 Trường hợp nên dùng broker topology](#213-trường-hợp-nên-dùng-broker-topology)
+      - [2.1.4 Trường hợp không nên dùng broker topology](#214-trường-hợp-không-nên-dùng-broker-topology)
+    - [2.2 Meditator topology](#22-meditator-topology)
+      - [2.2.1 Các thành phần chính của Meditator topology bao gồm:](#221-các-thành-phần-chính-của-meditator-topology-bao-gồm)
+      - [2.2.2 Cách hoạt động của Meditator topology được mô tả thông qua ví dụ về hệ thống bán lẻ sau:](#222-cách-hoạt-động-của-meditator-topology-được-mô-tả-thông-qua-ví-dụ-về-hệ-thống-bán-lẻ-sau)
+      - [2.2.3 Trường hợp nên dùng meditator topology](#223-trường-hợp-nên-dùng-meditator-topology)
+      - [2.2.4 Trường hợp không nên dùng meditator topology](#224-trường-hợp-không-nên-dùng-meditator-topology)
+  - [3. Xử lý mất dữ liệu trong EDA](#3-xử-lý-mất-dữ-liệu-trong-eda)
+
 ## Phần 1: Các cách phân loại kiến trúc phần mềm
 
 ### 1. Cách phân loại phổ biến
