@@ -1,5 +1,39 @@
 # Learn SQL
 
+![Status](https://img.shields.io/badge/SQL-orange) ![Topic](https://img.shields.io/badge/Topic-Learn-blue)
+
+## Mục lục
+
+- [Các câu hỏi thường gặp về SQL](#các-câu-hỏi-thường-gặp-về-sql)
+  - [1. SQL là gì?](#1-sql-là-gì)
+  - [2. Định nghĩa JOIN và các loại JOIN](#2-định-nghĩa-join-và-các-loại-join)
+  - [3. CHECK Constraint](#3-check-constraint)
+  - [4. BOOLEAN](#4-boolean)
+  - [5. DML và DDL](#5-dml-và-ddl)
+  - [6. Thứ tự của SQL SELECT](#6-thứ-tự-của-sql-select)
+  - [7. Sự khác biệt giữa TRUNCATE, DELETE và DROP](#7-sự-khác-biệt-giữa-truncate-delete-và-drop)
+  - [8. Các thuộc tính của một giao dịch](#8-các-thuộc-tính-của-một-giao-dịch)
+  - [9. UNION, MINUS, UNION ALL, INTERSECT là gì?](#9-union-minus-union-all-intersect-là-gì)
+  - [10. Sự khác biệt giữa WHERE và HAVING](#10-sự-khác-biệt-giữa-where-và-having)
+- [Kiến thức tối ưu và quan trọng](#kiến-thức-tối-ưu-và-quan-trọng)
+  - [1. Các cách tối ưu truy vấn chung](#1-các-cách-tối-ưu-truy-vấn-chung)
+  - [2. Index trong SQL](#2-index-trong-sql)
+    - [Các loại Index phổ biến](#các-loại-index-phổ-biến)
+    - [Cách hoạt động](#cách-hoạt-động)
+    - [Lưu ý](#lưu-ý)
+    - [Khi nào nên sử dụng Index?](#khi-nào-nên-sử-dụng-index)
+    - [Cách tạo Index trong PostgreSQL](#cách-tạo-index-trong-postgresql)
+  - [3. Phân tích truy vấn với EXPLAIN / EXPLAIN ANALYZE](#3-phân-tích-truy-vấn-với-explain--explain-analyze)
+  - [4. Tối ưu LIMIT và OFFSET](#4-tối-ưu-limit-và-offset)
+  - [5. Partition](#5-partition)
+    - [Các loại partition](#các-loại-partition)
+    - [Khi nào nên dùng partition](#khi-nào-nên-dùng-partition)
+  - [6. Caching ở tầng database](#6-caching-ở-tầng-database)
+    - [Các hình thức caching](#các-hình-thức-caching)
+    - [Khi nào nên dùng cache](#khi-nào-nên-dùng-cache)
+
+---
+
 ## Các câu hỏi thường gặp về SQL
 
 ### 1. SQL là gì?
