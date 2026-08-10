@@ -1,5 +1,7 @@
 # ARCHITECTURE PATTERN
 
+![Status](https://img.shields.io/badge/Architecture_Pattern-green) ![Topic](https://img.shields.io/badge/Topic-Learn-blue)
+
 ## Mục lục
 
 - [Phần 1: Các cách phân loại kiến trúc phần mềm](#phần-1-các-cách-phân-loại-kiến-trúc-phần-mềm)
