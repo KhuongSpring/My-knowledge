@@ -15,16 +15,6 @@
     - [Connection Timeout](#connection-timeout)
     - [Idle Timeout](#idle-timeout)
     - [Best Practices](#best-practices)
-- [III. HikariCP - "ông vua" của Connection Pool](#iii-hikaricp-ông-vua-của-connection-pool)
-  - [1. HikariCP là gì?](#1-hikaricp-là-gì)
-  - [2. Tại sao HikariCP lại được yêu thích?](#2-tại-sao-hikaricp-được-yêu-thích)
-  - [3. Cách sử dụng HikariCP](#3-cách-sử-dụng-hikaricp)
-  - [4. Cách debug và tối ưu hóa HikariCP](#4-cách-debug-và-tối-ưu-hóa-hikaricp)
-  - [5. Các lỗi thường gặp và cách khắc phục](#5-các-lỗi-thường-gặp-và-cách-khắc-phục)
-  - [6. HikariCP trong Spring Boot](#6-hikaricp-trong-spring-boot)
-  - [7. Ví dụ cụ thể](#7-ví-dụ-cụ-thể)
-  - [8. Tài liệu tham khảo](#8-tài-liệu-tham-khảo)
-- [V. Tổng kết](#v-tổng-kết)
 
 ## I. Tổng quan
 
@@ -116,16 +106,3 @@ spring:
       pool-name: MyApp-DB-Pool
 
 ```
-
-## III. HikariCP - "ông vua" của Connection Pool
-
-### 1. HikariCP là gì?
-[HikariCP](https://github.com/brettwooldridge/hikaricp) là JDBC connection pool có hiệu năng cao, rất nhẹ (chỉ khoảng 130kb), được phát triển bởi Brett Wooldridge (năm 2012) và vẫn đang được cập nhật liên tục. HikariCP có nhiều tính năng mà chính tác giả cũng đã ca ngợi:
-
-- Kiểm tra các kết nối tại chính method `getConnection()`
-- Đóng gói các internal pool query (bao gồm test query và initSQL query) trong transaction của chúng
-- Theo dõi và đóng các đối tượng `Statement` (đã hết sử dụng) tại `Connection.close()`
-- Thực hiện `rollback()` trên các `Connection` được trả về trong pool
-- Xóa SQL warning trước khi trả một `Connection` về cho client
-- Thiết lập mặc định `auto-commit`, mức cô lập cho `transaction`, `catalog` và trạng thái chỉ đọc (`read-only`)
-- Kiểm tra các đối tượng `SQLException` để tìm ra các lỗi mất kết nối
