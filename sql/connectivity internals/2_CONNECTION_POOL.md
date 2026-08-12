@@ -106,3 +106,5 @@ spring:
       pool-name: MyApp-DB-Pool
 
 ```
+
+> Tham khảo thêm về Connection Pool trong thực tế ở [đây](https://viblo.asia/p/connection-pool-vi-sao-hang-ngan-request-chi-can-vai-chuc-connection-database-database-system-design-p17-Nj4vgoRqJ6r) 
