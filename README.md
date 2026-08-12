@@ -6,41 +6,41 @@ Kho lưu trữ ghi chép tri thức kỹ thuật chuyên sâu về **Java, Sprin
 
 ## 🗂️ Cấu Trúc Thư Mục Hệ Thống
 
-```text
+<pre>
 My-knowledge/
-├── 📂 core/
-│   ├── 📄 JAVA_CORE.md              # Java Core & JVM Internals
-│   └── 📄 SPRING_BOOT.md            # Spring Boot Framework Internals
+├── 📂 <a href="core/">core/</a>
+│   ├── 📄 <a href="core/JAVA_CORE.md">JAVA_CORE.md</a>              # Java Core & JVM Internals
+│   └── 📄 <a href="core/SPRING_BOOT.md">SPRING_BOOT.md</a>            # Spring Boot Framework Internals
 │
-├── 📂 sql/
-│   ├── 📄 SQL_CORE.md               # SQL Deep Dive & Query Optimization
-│   ├── 📂 connectivity internals/   # JDBC Architecture & HikariCP
-│   │   ├── 📄 1_DATABASE_CONNECTION.md
-│   │   ├── 📄 2_CONNECTION_POOL.md
-│   │   ├── 📄 3_HIKARI_CP.md
-│   │   └── 📄 4_JDBC_BATCHING.md
-│   └── 📂 transaction management/  # Spring AOP & Transaction Management
-│       ├── 📄 1_SPRING_AOP_AND_TRANSACTIONAL.md
-│       └── 📄 1.1_AOP.md
+├── 📂 <a href="sql/">sql/</a>
+│   ├── 📄 <a href="sql/SQL_CORE.md">SQL_CORE.md</a>               # SQL Deep Dive & Query Optimization
+│   ├── 📂 <a href="sql/connectivity%20internals/">connectivity internals/</a>   # JDBC Architecture & HikariCP
+│   │   ├── 📄 <a href="sql/connectivity%20internals/1_DATABASE_CONNECTION.md">1_DATABASE_CONNECTION.md</a>
+│   │   ├── 📄 <a href="sql/connectivity%20internals/2_CONNECTION_POOL.md">2_CONNECTION_POOL.md</a>
+│   │   ├── 📄 <a href="sql/connectivity%20internals/3_HIKARI_CP.md">3_HIKARI_CP.md</a>
+│   │   └── 📄 <a href="sql/connectivity%20internals/4_JDBC_BATCHING.md">4_JDBC_BATCHING.md</a>
+│   └── 📂 <a href="sql/transaction%20management/">transaction management/</a>  # Spring AOP & Transaction Management
+│       ├── 📄 <a href="sql/transaction%20management/1_SPRING_AOP_AND_TRANSACTIONAL.md">1_SPRING_AOP_AND_TRANSACTIONAL.md</a>
+│       └── 📄 <a href="sql/transaction%20management/1.1_AOP.md">1.1_AOP.md</a>
 │
-├── 📂 cloud/
-│   ├── 📄 AWS-S3.md                 # Amazon S3 Object Storage
-│   ├── 📄 AWS-LAMBDA.md             # AWS Lambda Serverless
-│   ├── 📄 AWS-SQS.md                # AWS SQS Message Queue
-│   ├── 📄 AWS-EVENT-BRIDGE.md       # AWS EventBridge
-│   └── 📄 AWS-GLUE.md               # AWS Glue ETL
+├── 📂 <a href="cloud/">cloud/</a>
+│   ├── 📄 <a href="cloud/AWS-S3.md">AWS-S3.md</a>                 # Amazon S3 Object Storage
+│   ├── 📄 <a href="cloud/AWS-LAMBDA.md">AWS-LAMBDA.md</a>             # AWS Lambda Serverless
+│   ├── 📄 <a href="cloud/AWS-SQS.md">AWS-SQS.md</a>                # AWS SQS Message Queue
+│   ├── 📄 <a href="cloud/AWS-EVENT-BRIDGE.md">AWS-EVENT-BRIDGE.md</a>       # AWS EventBridge
+│   └── 📄 <a href="cloud/AWS-GLUE.md">AWS-GLUE.md</a>               # AWS Glue ETL
 │
-├── 📂 system-infra/
-│   ├── 📄 ARCHITECTURE_PATTERN.md    # Software Architecture Patterns
-│   ├── 📄 BFF.md                    # Backend For Frontend Pattern
-│   ├── 📄 DEPLOY_BACKEND.md         # Deployment & CI/CD
-│   └── 📄 SYSTEM_DESIGN.md          # System Design Handbook
+├── 📂 <a href="system-infra/">system-infra/</a>
+│   ├── 📄 <a href="system-infra/ARCHITECTURE_PATTERN.md">ARCHITECTURE_PATTERN.md</a>    # Software Architecture Patterns
+│   ├── 📄 <a href="system-infra/BFF.md">BFF.md</a>                    # Backend For Frontend Pattern
+│   ├── 📄 <a href="system-infra/DEPLOY_BACKEND.md">DEPLOY_BACKEND.md</a>         # Deployment & CI/CD
+│   └── 📄 <a href="system-infra/SYSTEM_DESIGN.md">SYSTEM_DESIGN.md</a>          # System Design Handbook
 │
-├── 📂 analyst/
-│   └── 📄 SOCIAL_APIs.md            # Social Platform APIs
+├── 📂 <a href="analyst/">analyst/</a>
+│   └── 📄 <a href="analyst/SOCIAL_APIs.md">SOCIAL_APIs.md</a>            # Social Platform APIs
 │
-└── 📂 image/
-```
+└── 📂 <a href="image/">image/</a>
+</pre>
 ---
 
 ## 📌 Phân Vùng Tri Thức
