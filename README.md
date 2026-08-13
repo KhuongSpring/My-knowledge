@@ -24,7 +24,8 @@ My-knowledge/
 │   │   ├── 📄 <a href="sql/consistency%20%26%20transaction%20management/1.1_AOP.md">1.1_AOP.md</a>
 │   │   ├── 📄 <a href="sql/consistency%20%26%20transaction%20management/2_ISOLATION_LEVEL_AND_MVCC.md">2_ISOLATION_LEVEL_AND_MVCC.md</a>
 │   │   └── 📄 <a href="sql/consistency%20%26%20transaction%20management/3_PROPAGATION_AND_CONNECTION_MANAGEMENT.md">3_PROPAGATION_AND_CONNECTION_MANAGEMENT.md</a>
-│   └── 📂 <a href="sql/hibernate%20%26%20jpa%20internals/">hibernate & jpa internals/</a>  # ORM & JPA Internals (WIP)
+│   └── 📂 <a href="sql/hibernate%20%26%20jpa%20internals/">hibernate & jpa internals/</a>  # ORM & JPA Internals
+│       └── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/1_PERSISTENCE_CONTEXT_AND_L1_CACHE.md">1_PERSISTENCE_CONTEXT_AND_L1_CACHE.md</a>
 │
 ├── 📂 <a href="cloud/">cloud/</a>
 │   ├── 📄 <a href="cloud/AWS-S3.md">AWS-S3.md</a>                 # Amazon S3 Object Storage
