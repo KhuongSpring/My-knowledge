@@ -24,9 +24,12 @@ My-knowledge/
 │   │   ├── 📄 <a href="sql/consistency%20%26%20transaction%20management/1.1_AOP.md">1.1_AOP.md</a>
 │   │   ├── 📄 <a href="sql/consistency%20%26%20transaction%20management/2_ISOLATION_LEVEL_AND_MVCC.md">2_ISOLATION_LEVEL_AND_MVCC.md</a>
 │   │   └── 📄 <a href="sql/consistency%20%26%20transaction%20management/3_PROPAGATION_AND_CONNECTION_MANAGEMENT.md">3_PROPAGATION_AND_CONNECTION_MANAGEMENT.md</a>
-│   └── 📂 <a href="sql/hibernate%20%26%20jpa%20internals/">hibernate & jpa internals/</a>  # ORM & JPA Internals
-│       ├── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/1_PERSISTENCE_CONTEXT_AND_L1_CACHE.md">1_PERSISTENCE_CONTEXT_AND_L1_CACHE.md</a>
-│       └── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/2_N_PLUS_1_SELECT_PROBLEM.md">2_N_PLUS_1_SELECT_PROBLEM.md</a>
+│   ├── 📂 <a href="sql/hibernate%20%26%20jpa%20internals/">hibernate & jpa internals/</a>  # ORM & JPA Internals
+│   │   ├── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/1_PERSISTENCE_CONTEXT_AND_L1_CACHE.md">1_PERSISTENCE_CONTEXT_AND_L1_CACHE.md</a>
+│   │   └── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/2_N_PLUS_1_SELECT_PROBLEM.md">2_N_PLUS_1_SELECT_PROBLEM.md</a>
+│   └── 📂 <a href="sql/locking%20%26%20concurrency/">locking & concurrency/</a>  # Optimistic/Pessimistic Locking & Concurrency Control
+│       ├── 📄 <a href="sql/locking%20%26%20concurrency/1_OPTIMISTIC_LOCKING.md">1_OPTIMISTIC_LOCKING.md</a>
+│       └── 📄 <a href="sql/locking%20%26%20concurrency/2_PESSIMISTIC_LOCKING.md">2_PESSIMISTIC_LOCKING.md</a>
 │
 ├── 📂 <a href="cloud/">cloud/</a>
 │   ├── 📄 <a href="cloud/AWS-S3.md">AWS-S3.md</a>                 # Amazon S3 Object Storage
@@ -53,7 +56,7 @@ My-knowledge/
 | Miền chủ đề (Domain) | Mục tiêu kiến thức |
 | :--- | :--- |
 | ☕ **`core/`** | Nền tảng ngôn ngữ Java & Spring Framework Internals |
-| 🗄️ **`sql/`** | Database Engine, Connectivity & Transaction Management |
+| 🗄️ **`sql/`** | Database Engine, Connectivity, Transaction Management & Concurrency Control |
 | ☁️ **`cloud/`** | Hạ tầng đám mây AWS & Serverless Architecture |
 | 🏛️ **`system-infra/`** | System Design, Software Architecture & Deployment |
 | 📊 **`analyst/`** | Tích hợp API & Nền tảng bên thứ ba |
