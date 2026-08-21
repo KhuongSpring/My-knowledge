@@ -26,10 +26,13 @@ My-knowledge/
 │   │   └── 📄 <a href="sql/consistency%20%26%20transaction%20management/3_PROPAGATION_AND_CONNECTION_MANAGEMENT.md">3_PROPAGATION_AND_CONNECTION_MANAGEMENT.md</a>
 │   ├── 📂 <a href="sql/hibernate%20%26%20jpa%20internals/">hibernate & jpa internals/</a>  # ORM & JPA Internals
 │   │   ├── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/1_PERSISTENCE_CONTEXT_AND_L1_CACHE.md">1_PERSISTENCE_CONTEXT_AND_L1_CACHE.md</a>
-│   │   └── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/2_N_PLUS_1_SELECT_PROBLEM.md">2_N_PLUS_1_SELECT_PROBLEM.md</a>
+│   │   ├── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/2_N_PLUS_1_SELECT_PROBLEM.md">2_N_PLUS_1_SELECT_PROBLEM.md</a>
+│   │   ├── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/3_SECOND_LEVEL_CACHE.md">3_SECOND_LEVEL_CACHE.md</a> 🚧
+│   │   └── 📄 <a href="sql/hibernate%20%26%20jpa%20internals/4_ENTITY_RELATIONSHIP_MAPPING.md">4_ENTITY_RELATIONSHIP_MAPPING.md</a> 🚧
 │   └── 📂 <a href="sql/locking%20%26%20concurrency/">locking & concurrency/</a>  # Optimistic/Pessimistic Locking & Concurrency Control
 │       ├── 📄 <a href="sql/locking%20%26%20concurrency/1_OPTIMISTIC_LOCKING.md">1_OPTIMISTIC_LOCKING.md</a>
-│       └── 📄 <a href="sql/locking%20%26%20concurrency/2_PESSIMISTIC_LOCKING.md">2_PESSIMISTIC_LOCKING.md</a>
+│       ├── 📄 <a href="sql/locking%20%26%20concurrency/2_PESSIMISTIC_LOCKING.md">2_PESSIMISTIC_LOCKING.md</a>
+│       └── 📄 <a href="sql/locking%20%26%20concurrency/3_DATABASE_LOCK_TYPES.md">3_DATABASE_LOCK_TYPES.md</a> 🚧
 │
 ├── 📂 <a href="cloud/">cloud/</a>
 │   ├── 📄 <a href="cloud/AWS-S3.md">AWS-S3.md</a>                 # Amazon S3 Object Storage

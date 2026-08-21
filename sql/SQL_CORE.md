@@ -31,6 +31,11 @@
   - [6. Caching ở tầng database](#6-caching-ở-tầng-database)
     - [Các hình thức caching](#các-hình-thức-caching)
     - [Khi nào nên dùng cache](#khi-nào-nên-dùng-cache)
+  - [7. Index \& Query Optimizer nâng cao (outline)](#7-index--query-optimizer-nâng-cao)
+    - [Composite Index \& Leftmost Prefix Rule](#composite-index--leftmost-prefix-rule)
+    - [Covering Index](#covering-index)
+    - [Cách Query Optimizer chọn Index](#cách-query-optimizer-chọn-index)
+    - [Đọc Execution Plan sâu hơn: Các thuật toán JOIN](#đọc-execution-plan-sâu-hơn-các-thuật-toán-join)
 
 ---
 
@@ -309,3 +314,36 @@ LIMIT 10;
 - Câu truy vấn nặng và lặp lại nhiều.
 - Dữ liệu không thay đổi thường xuyên.
 - Cần giảm tải DB và tăng tốc API.
+
+### 7. Index & Query Optimizer nâng cao
+
+> **Outline** — phần này mới ở dạng khung sườn, mở rộng thêm cho mục 2 (Index) còn khá sơ lược ở trên. Sẽ triển khai chi tiết (ví dụ, execution plan thật, benchmark) sau.
+
+#### Composite Index & Leftmost Prefix Rule
+
+- Composite Index (chỉ mục kết hợp nhiều cột) chỉ phát huy tác dụng nếu điều kiện `WHERE`/`ORDER BY` dùng đúng theo **thứ tự cột từ trái sang phải** đã khai báo khi tạo Index.
+- Ví dụ dự kiến: `CREATE INDEX idx ON orders (user_id, status, created_at)` — sẽ tối ưu cho `WHERE user_id = ?`, `WHERE user_id = ? AND status = ?`, nhưng **không** tận dụng được cho `WHERE status = ?` đứng riêng.
+- Nguyên tắc chọn thứ tự cột: cột có độ chọn lọc cao (High Selectivity/Cardinality) và hay dùng lọc `=` nên đứng trước; cột dùng cho range (`>`, `<`, `BETWEEN`) nên đứng sau cùng.
+
+#### Covering Index
+
+- Khái niệm: Index chứa **đủ toàn bộ cột** mà câu Query cần (kể cả cột nằm trong `SELECT`), giúp DB trả kết quả thẳng từ Index mà **không cần** quay lại đọc bảng chính (tránh "bookmark lookup"/"table access by rowid").
+- Dấu hiệu nhận biết trên `EXPLAIN`: xuất hiện `Using index` (MySQL) — khác với `Using where` (vẫn phải đọc thêm bảng).
+- Đánh đổi: Covering Index thường rộng hơn Index thường (nhiều cột hơn), tốn thêm dung lượng lưu trữ và chi phí ghi.
+
+#### Cách Query Optimizer chọn Index
+
+- Optimizer dựa vào **Statistics** (thống kê phân bố dữ liệu, số dòng ước tính — Cardinality/Selectivity) được thu thập định kỳ (`ANALYZE TABLE`), không phải đọc dữ liệu thật tại thời điểm chạy Query.
+- Vì sao đôi khi Optimizer "cố tình" bỏ qua Index đã tạo sẵn để chạy Full Table Scan: khi Selectivity quá thấp (ví dụ cột `is_active` chỉ có 2 giá trị, quét Index + quay lại bảng còn tốn hơn quét thẳng cả bảng).
+- Rủi ro **Statistics lỗi thời** (bảng vừa tăng trưởng đột biến nhưng thống kê chưa cập nhật) khiến Optimizer chọn nhầm kế hoạch thực thi tệ hơn nhiều so với thực tế.
+
+#### Đọc Execution Plan sâu hơn: Các thuật toán JOIN
+
+- **Nested Loop Join**: duyệt từng dòng bảng ngoài (outer), với mỗi dòng lại dò tìm trong bảng trong (inner) — hiệu quả khi bảng inner có Index tốt và số dòng outer nhỏ.
+- **Hash Join**: dựng Hash Table từ bảng nhỏ hơn trong RAM, rồi quét bảng còn lại để so khớp — hiệu quả khi JOIN trên cột không có Index, dữ liệu lớn, không cần thứ tự.
+- **Merge Join (Sort-Merge Join)**: yêu cầu cả 2 bảng đã được sắp xếp theo cột JOIN (hoặc tốn chi phí sort trước), sau đó duyệt song song 2 con trỏ — hiệu quả khi dữ liệu đã có sẵn Index dạng B-Tree theo đúng cột JOIN.
+- Bảng so sánh dự kiến: độ phức tạp, khi nào Optimizer chọn thuật toán nào, cách nhận biết trên `EXPLAIN ANALYZE` (PostgreSQL hiển thị tên thuật toán tường minh; MySQL từ 8.0.18+ mới hỗ trợ Hash Join).
+
+---
+
+> *(Các mục 1-6 phía trên đã hoàn chỉnh; mục 7 đang ở dạng outline, sẽ được viết đầy đủ ở lần cập nhật tiếp theo.)*
